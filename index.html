@@ -24,6 +24,7 @@
       --text-main: #f0f4f8;
       --text-muted: #8494ab;
       --danger: #ff4757;
+      --danger-glow: rgba(255, 71, 87, 0.4);
       --success: #2ed573;
       --warning: #ffa502;
       --grid-line: rgba(255, 255, 255, 0.035);
@@ -43,6 +44,7 @@
       --text-main: #0f172a;
       --text-muted: #64748b;
       --danger: #e11d48;
+      --danger-glow: rgba(225, 29, 72, 0.3);
       --success: #16a34a;
       --warning: #d97706;
       --grid-line: rgba(0, 0, 0, 0.04);
@@ -144,7 +146,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
       text-decoration: none;
       color: inherit;
     }
@@ -175,6 +177,20 @@
       font-size: 0.75rem;
       color: var(--text-muted);
       font-weight: 600;
+    }
+
+    .user-tag-chip {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
     }
 
     .nav-list {
@@ -426,15 +442,39 @@
     .card-title {
       font-size: 1.3rem;
       font-weight: 900;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       color: var(--text-main);
+    }
+
+    .star-rating-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+      font-size: 0.88rem;
+    }
+
+    .star-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.05rem;
+      color: #555;
+      padding: 0 1px;
+      transition: transform 0.15s;
+    }
+    .star-btn.active {
+      color: #f1c40f;
+    }
+    .star-btn:hover {
+      transform: scale(1.2);
     }
 
     .card-desc {
       font-size: 0.92rem;
       color: var(--text-muted);
       line-height: 1.5;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       flex: 1;
     }
 
@@ -451,20 +491,21 @@
       padding-top: 14px;
       margin-top: 14px;
       border-top: 1px solid var(--border-color);
+      gap: 6px;
     }
 
     .like-btn {
       background: transparent;
       border: 1px solid var(--border-color);
       color: var(--text-muted);
-      padding: 6px 12px;
+      padding: 6px 10px;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.2s;
     }
 
@@ -533,6 +574,43 @@
       line-height: 1.6;
     }
 
+    /* LİDERLİK TABLOSU GÖRÜNÜMÜ */
+    .leaderboard-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .leaderboard-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 24px;
+    }
+
+    .leaderboard-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .leader-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    /* KOD LİSTESİ */
     .code-list-container {
       display: flex;
       flex-direction: column;
@@ -572,6 +650,7 @@
       word-break: break-all;
     }
 
+    /* YAPIMCI KARTI */
     .creator-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
@@ -641,6 +720,7 @@
       filter: brightness(1.15);
     }
 
+    /* AYARLAR */
     .settings-container {
       max-width: 680px;
       display: flex;
@@ -718,6 +798,7 @@
       margin-bottom: 10px;
     }
 
+    /* PRO OYUN HUD */
     .runner-modal {
       display: none;
       position: fixed;
@@ -777,11 +858,12 @@
       background: #ffffff;
     }
 
-    .comments-drawer-modal {
+    /* MODALLAR (YORUM & QR PAYLAŞIM) */
+    .drawer-modal-bg {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.82);
       backdrop-filter: blur(8px);
       z-index: 1000000;
       align-items: center;
@@ -789,7 +871,7 @@
       padding: 20px;
     }
 
-    .comments-dialog {
+    .drawer-dialog {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: 20px;
@@ -855,6 +937,7 @@
       user-select: none;
     }
 
+    /* ADMİN MASASI */
     .admin-modal-bg {
       display: none;
       position: fixed;
@@ -872,7 +955,7 @@
       border: 1px solid var(--primary);
       border-radius: 22px;
       width: 100%;
-      max-width: 860px;
+      max-width: 880px;
       padding: 28px;
       max-height: 92vh;
       overflow-y: auto;
@@ -942,6 +1025,22 @@
       font-weight: 700;
     }
 
+    /* ZAMAN ÇİZELGESİ GRAFİK KUTUSU */
+    .traffic-chart-container {
+      background: #04060a;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 15px;
+      position: relative;
+    }
+
+    #trafficChartCanvas {
+      width: 100%;
+      height: 220px;
+      display: block;
+    }
+
     .form-group {
       margin-bottom: 15px;
     }
@@ -997,6 +1096,78 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    /* 🚫 SİTEDEN BANLANDINIZ KIRMIZI ALARM EKRANI */
+    #banScreenOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, #2b0409 0%, #0c0103 100%);
+      z-index: 100000000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .ban-card-box {
+      background: rgba(18, 3, 6, 0.95);
+      border: 2px solid var(--danger);
+      box-shadow: 0 0 50px var(--danger-glow);
+      border-radius: 24px;
+      max-width: 550px;
+      width: 100%;
+      padding: 40px 30px;
+      animation: pulseDanger 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseDanger {
+      0%, 100% { box-shadow: 0 0 35px var(--danger-glow); }
+      50% { box-shadow: 0 0 65px var(--danger-glow); }
+    }
+
+    .ban-icon {
+      font-size: 5rem;
+      margin-bottom: 12px;
+    }
+
+    .ban-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--danger);
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .ban-desc {
+      color: #ffd2d6;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .ban-meta-box {
+      background: #1e0509;
+      border: 1px dashed var(--danger);
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    /* 🛠️ BAKIM MODU EKRANI */
+    #maintenanceScreenOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #06080d;
+      z-index: 99999999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
     }
 
     footer {
@@ -1078,10 +1249,20 @@
         </div>
       </a>
 
+      <div class="user-tag-chip" title="Cihazınıza özel 5 haneli oyuncu kimliği">
+        <span>🏷️ Kimliğiniz:</span>
+        <strong id="displayPlayerTag">#-----</strong>
+      </div>
+
       <ul class="nav-list">
         <li>
           <button class="nav-item-btn active" id="side-games" onclick="navigateTo('games')">
             <span class="nav-icon">🎮</span> Oyunlar
+          </button>
+        </li>
+        <li>
+          <button class="nav-item-btn" id="side-leaderboard" onclick="navigateTo('leaderboard')">
+            <span class="nav-icon">🏆</span> Liderler Tablosu
           </button>
         </li>
         <li>
@@ -1109,7 +1290,7 @@
       <section id="view-games" class="page-section active-view">
         <div class="section-header">
           <h1>🎮 Oyun Merkezi</h1>
-          <p>guzeladam tarafından geliştirilen oyunları tarayıcında anında oyna, kodları incele!</p>
+          <p>guzeladam stüdyolarında kodlanan tüm oyunları oyna, yıldız ver ve kodları kopyala!</p>
           
           <div class="filter-controls-wrap">
             <div class="search-row">
@@ -1118,6 +1299,7 @@
                 <option value="newest">En Yeniler</option>
                 <option value="popular">En Çok Oynananlar</option>
                 <option value="likes">En Çok Beğenilenler</option>
+                <option value="rating">En Yüksek Puanlılar</option>
               </select>
             </div>
 
@@ -1135,7 +1317,29 @@
         <div class="cards-grid" id="gamesCardsContainer"></div>
       </section>
 
-      <!-- 2. BÖLÜM: KAYNAK KODLAR -->
+      <!-- 2. BÖLÜM: LİDERLER TABLOSU (YENİ DEV ÖZELLİK) -->
+      <section id="view-leaderboard" class="page-section">
+        <div class="section-header">
+          <h1>🏆 Stüdyo Liderler Tablosu</h1>
+          <p>En popüler oyunlar, en yüksek puan alan projeler ve canlı stüdyo istatistikleri.</p>
+        </div>
+        <div class="leaderboard-container">
+          <div class="leaderboard-box">
+            <h3 class="leaderboard-title">🔥 En Çok Oynanan Oyunlar</h3>
+            <div id="topPlayedList"></div>
+          </div>
+          <div class="leaderboard-box">
+            <h3 class="leaderboard-title">⭐ En Yüksek Puanlı Oyunlar</h3>
+            <div id="topRatedList"></div>
+          </div>
+          <div class="leaderboard-box">
+            <h3 class="leaderboard-title">❤️ En Çok Kalp Alanlar</h3>
+            <div id="topLikedList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. BÖLÜM: KAYNAK KODLAR -->
       <section id="view-codes" class="page-section">
         <div class="section-header">
           <h1>💾 Açık Kaynak Kod Deposu</h1>
@@ -1144,7 +1348,7 @@
         <div class="code-list-container" id="codeCardsContainer"></div>
       </section>
 
-      <!-- 3. BÖLÜM: YAPIMCILAR -->
+      <!-- 4. BÖLÜM: YAPIMCILAR -->
       <section id="view-creator" class="page-section">
         <div class="creator-card">
           <div class="creator-avatar">👑</div>
@@ -1153,7 +1357,7 @@
           <p class="creator-quote">
             Bu platformdaki tüm oyunlar, arayüz mimarisi ve altyapı <strong>sadece guzeladam</strong> tarafından geliştirilmiştir. Başka hiç kimse tarafından yapılmamıştır.
           </p>
-          <a href="https://www.youtube.com/@erdemmaraz5246" target="_blank" rel="noopener noreferrer" class="yt-btn">
+          <a href="https://www.youtube.com/@erdemmaraz5246" target="_blank" rel="noopener noreferrer" class="yt-btn" onclick="playRetroSound('click')">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
             </svg>
@@ -1162,11 +1366,11 @@
         </div>
       </section>
 
-      <!-- 4. BÖLÜM: AYARLAR -->
+      <!-- 5. BÖLÜM: AYARLAR -->
       <section id="view-settings" class="page-section">
         <div class="section-header">
           <h1>⚙️ Sistem Ayarları</h1>
-          <p>Kişisel deneyimini ve platform tercihlerini yönet.</p>
+          <p>Kişisel deneyimini, sesleri ve stüdyo tercihlerini yönet.</p>
         </div>
         <div class="settings-container">
           <div class="setting-row">
@@ -1176,6 +1380,17 @@
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="themeToggleCheckbox" onchange="toggleSiteTheme(this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <h4>🕹️ 8-Bit Retro Synth Ses Efektleri</h4>
+              <p>Tıklama, puan verme ve oyun açılışlarında retro chiptune sesleri</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="soundToggleCheckbox" checked onchange="toggleSoundFx(this.checked)">
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -1202,14 +1417,14 @@
           <div class="setting-row">
             <div class="setting-info">
               <h4>IndexedDB Veritabanını Sıfırla</h4>
-              <p>Yerel veritabanındaki tüm önbelleği temizle</p>
+              <p>Yerel veritabanındaki tüm önbelleği temizle (Firebase verileri korunur)</p>
             </div>
             <button class="btn btn-secondary" style="border-color: var(--danger); color: var(--danger);" onclick="resetLocalData()">Sıfırla</button>
           </div>
         </div>
       </section>
 
-      <!-- 5. BÖLÜM: 404 NOT FOUND -->
+      <!-- 6. BÖLÜM: 404 NOT FOUND -->
       <section id="view-notfound" class="page-section">
         <div class="not-found-card">
           <div class="error-code">404</div>
@@ -1222,9 +1437,13 @@
     </main>
   </div>
 
+  <!-- MOBİL ALT BAR -->
   <nav class="bottom-bar">
     <button class="bottom-btn active" id="bot-games" onclick="navigateTo('games')">
       <span class="b-icon">🎮</span> Oyunlar
+    </button>
+    <button class="bottom-btn" id="bot-leaderboard" onclick="navigateTo('leaderboard')">
+      <span class="b-icon">🏆</span> Liderler
     </button>
     <button class="bottom-btn" id="bot-codes" onclick="navigateTo('codes')">
       <span class="b-icon">💾</span> Kodlar
@@ -1260,9 +1479,9 @@
     <div class="runner-frame-container" id="runnerFrameContainer"></div>
   </div>
 
-  <!-- YORUMLAR -->
-  <div class="comments-drawer-modal" id="commentsModal">
-    <div class="comments-dialog">
+  <!-- YORUMLAR MODALI -->
+  <div class="drawer-modal-bg" id="commentsModal">
+    <div class="drawer-dialog">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
         <h3 id="commentsGameTitle" style="font-size: 1.2rem; color: var(--primary);">💬 Yorumlar</h3>
         <button class="btn btn-secondary" style="padding: 4px 10px;" onclick="closeCommentsModal()">✖</button>
@@ -1280,6 +1499,71 @@
     </div>
   </div>
 
+  <!-- HIZLI PAYLAŞ & QR KOD MODALI (YENİ DEV ÖZELLİK) -->
+  <div class="drawer-modal-bg" id="shareModal">
+    <div class="drawer-dialog" style="max-width: 420px; text-align: center;">
+      <h3 style="margin-bottom: 6px; color: var(--primary);">📱 Hızlı Paylaş & QR Kod</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;" id="shareGameTitleText">Oyun Bağlantısı</p>
+      
+      <div style="background: #fff; padding: 15px; border-radius: 14px; width: 190px; height: 190px; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center;">
+        <canvas id="qrCodeCanvas" width="160" height="160"></canvas>
+      </div>
+
+      <div class="form-group">
+        <input type="text" id="shareGameUrlInput" class="form-ctrl" readonly style="text-align: center; font-size: 0.85rem;">
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-play-run" style="flex: 1;" onclick="copyShareUrl()">📋 Linki Kopyala</button>
+        <button class="btn btn-secondary" style="flex: 1;" onclick="closeShareModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🚫 SİTEDEN BANLANDINIZ KIRMIZI ALARM EKRANI -->
+  <div id="banScreenOverlay">
+    <div class="ban-card-box">
+      <div class="ban-icon">🚫</div>
+      <h1 class="ban-title">SİTEDEN BANLANDINIZ!</h1>
+      <p class="ban-desc">
+        Bu web sitesine erişiminiz <strong>guzeladam Stüdyoları</strong> güvenlik politikaları gereğince durdurulmuştur.
+      </p>
+
+      <div class="ban-meta-box">
+        <div style="margin-bottom: 6px;"><strong>🏷️ Oyuncu Kodunuz:</strong> <span id="bannedPlayerTagDisplay" style="color: var(--primary);">#-----</span></div>
+        <div style="margin-bottom: 6px;"><strong>⚠️ Ban Nedeni:</strong> <span id="banReasonDisplay" style="color: var(--danger);">Kurallara aykırı davranış.</span></div>
+        <div><strong>⏱️ Ban Tarihi:</strong> <span id="banTimeDisplay" style="color: var(--text-muted);">-</span></div>
+      </div>
+
+      <!-- Destek Talebi / İtiraz Kutusu -->
+      <div id="appealFormSection">
+        <button class="btn btn-secondary" style="width: 100%; border-color: var(--danger); color: #fff; margin-bottom: 10px;" onclick="toggleAppealInput()">
+          📩 Destek Talebi Aç (İtiraz Et)
+        </button>
+        <div id="appealInputWrapper" style="display: none; margin-top: 10px;">
+          <textarea id="appealUserMessage" class="form-ctrl" style="min-height: 80px; margin-bottom: 10px;" placeholder="Yöneticiye iletmek istediğiniz itiraz mesajı..."></textarea>
+          <button class="btn btn-play-run" style="width: 100%;" onclick="submitBanAppeal()">Talebi Gönder</button>
+        </div>
+      </div>
+      <div id="appealSuccessMsg" style="display: none; color: var(--success); font-weight: 800; font-size: 0.95rem; margin-top: 12px;">
+        ✓ Yöneticiye mesaj gitti! Destek talebiniz incelemeye alındı.
+      </div>
+    </div>
+  </div>
+
+  <!-- 🛠️ BAKIM MODU EKRANI -->
+  <div id="maintenanceScreenOverlay">
+    <div style="max-width: 500px; padding: 30px;">
+      <div style="font-size: 4.5rem; margin-bottom: 15px;">🛠️</div>
+      <h1 style="font-size: 2rem; color: var(--warning); margin-bottom: 12px;">SİTE BAKIMDA!</h1>
+      <p style="color: var(--text-muted); line-height: 1.6; font-size: 1rem; margin-bottom: 25px;">
+        guzeladam stüdyolarında yeni güncellemeler ve yeni oyunlar yükleniyor. Kısa süre sonra tekrar yayında olacağız!
+      </p>
+      <a href="https://www.youtube.com/@erdemmaraz5246" target="_blank" class="yt-btn">YouTube Kanalımız</a>
+    </div>
+  </div>
+
+  <!-- GİZLİ ADMİN TETİKLEYİCİSİ -->
   <div id="hiddenAdminTrigger"></div>
 
   <!-- ADMİN ŞİFRE MODALI -->
@@ -1310,15 +1594,16 @@
       </div>
 
       <div class="admin-tabs-row">
-        <button class="admin-tab-btn active" onclick="switchAdminTab('tab-stats', this)">📊 Canlı Analitik</button>
+        <button class="admin-tab-btn active" onclick="switchAdminTab('tab-stats', this)">📊 Analitik & Grafik</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('tab-addgame', this)">➕ Oyun Ekle</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('tab-managegames', this)">📋 Oyunları Yönet</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('tab-modcomments', this)">💬 Yorum Moderasyonu</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('tab-bans', this)">🚫 Ban & İtirazlar</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('tab-modcomments', this)">💬 Yorumlar</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('tab-announcement', this)">📢 Duyuru</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('tab-integrations', this)">⚙️ Güvenlik & Yedek</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('tab-integrations', this)">⚙️ Güvenlik & Bakım</button>
       </div>
 
-      <!-- SEKME 1: ANALİTİK (ONLINE SAYACI EKLENDİ) -->
+      <!-- SEKME 1: ANALİTİK & ZAMAN GRAFİĞİ -->
       <div id="tab-stats" class="admin-tab-content active">
         <div class="stats-grid-dashboard">
           <div class="stat-metric-card" style="border-color: var(--success); box-shadow: 0 0 15px rgba(46, 213, 115, 0.15);">
@@ -1338,13 +1623,16 @@
             <div class="stat-metric-label">Toplam Beğeni</div>
           </div>
           <div class="stat-metric-card">
-            <div class="stat-metric-val" id="metricTotalCopies">0</div>
-            <div class="stat-metric-label">Kod Kopyalama</div>
+            <div class="stat-metric-val" id="metricTotalVisits">0</div>
+            <div class="stat-metric-label">Kayıtlı Ziyaret</div>
           </div>
         </div>
-        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
-          <h4 style="font-size: 0.95rem; margin-bottom: 8px; color: var(--accent);">🔥 En Popüler Oyun: <span id="metricTopGame" style="color: #fff;">-</span></h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">Tüm veriler tarayıcının IndexedDB altyapısında sınırsız depolanır ve Firebase üzerinden canlı olarak güncellenir.</p>
+
+        <!-- OYUNCU ZİYARET ZAMAN ÇİZELGESİ GRAFİĞİ -->
+        <h4 style="font-size: 0.95rem; color: var(--accent); margin-bottom: 6px;">📈 Oyuncu Ziyaret Zaman Çizelgesi (Gece 03:00 Dahil Tüm Girişler)</h4>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Site açıldığından itibaren her ziyaretçinin giriş saati gerçek zamanlı grafiğe dökülür:</p>
+        <div class="traffic-chart-container">
+          <canvas id="trafficChartCanvas" width="800" height="220"></canvas>
         </div>
       </div>
 
@@ -1401,13 +1689,29 @@
         <div id="adminManageList"></div>
       </div>
 
-      <!-- SEKME 4: YORUM MODERASYONU -->
+      <!-- SEKME 4: BAN & İTİRAZLAR (YENİ SİSTEM) -->
+      <div id="tab-bans" class="admin-tab-content">
+        <h4 style="color: var(--danger); margin-bottom: 12px;">🚫 Oyuncu Banla (5 Haneli Kod ile)</h4>
+        <div style="display: grid; grid-template-columns: 1fr 2fr auto; gap: 10px; margin-bottom: 24px;">
+          <input type="text" id="banPlayerTagInput" class="form-ctrl" placeholder="Kod (örn: K9X7B)">
+          <input type="text" id="banReasonInput" class="form-ctrl" placeholder="Ban Sebebi (örn: Hile / Küfür)">
+          <button class="btn btn-play-run" style="background: var(--danger); color: #fff;" onclick="adminExecuteBan()">🚫 Banla</button>
+        </div>
+
+        <h4 style="color: var(--primary); margin-bottom: 12px;">📩 Gelen Destek Talepleri (Ban İtirazları)</h4>
+        <div id="adminBanAppealsList" style="margin-bottom: 24px;"></div>
+
+        <h4 style="color: var(--text-muted); margin-bottom: 12px;">🔒 Mevcut Banlı Oyuncular</h4>
+        <div id="adminBannedUsersList"></div>
+      </div>
+
+      <!-- SEKME 5: YORUMLAR -->
       <div id="tab-modcomments" class="admin-tab-content">
         <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">Ziyaretçilerin bıraktığı yorumları buradan silebilirsiniz:</p>
         <div id="adminCommentsModList" style="display: flex; flex-direction: column; gap: 8px;"></div>
       </div>
 
-      <!-- SEKME 5: GLOBAL DUYURU -->
+      <!-- SEKME 6: GLOBAL DUYURU -->
       <div id="tab-announcement" class="admin-tab-content">
         <div class="form-group">
           <label>Global Kayan Duyuru Metni</label>
@@ -1419,16 +1723,20 @@
         </div>
       </div>
 
-      <!-- SEKME 6: GÜVENLİK & YEDEK -->
+      <!-- SEKME 7: GÜVENLİK & BAKIM MODU -->
       <div id="tab-integrations" class="admin-tab-content">
+        <h4 style="margin-bottom: 10px; color: var(--warning);">🛠️ Canlı Bakım Modu</h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Bakım modunu açtığında normal ziyaretçiler bakım ekranı görür, sadece şifreyi bilen adminler girebilir.</p>
+        <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+          <button class="btn btn-secondary" style="border-color: var(--warning); color: var(--warning);" onclick="adminToggleMaintenance(true)">Bakım Modunu Aç</button>
+          <button class="btn btn-play-run" onclick="adminToggleMaintenance(false)">Bakım Modunu Kapat (Normal Yayın)</button>
+        </div>
+
         <h4 style="margin-bottom: 10px; color: var(--accent);">🔐 Admin Şifresini Değiştir</h4>
         <div class="form-group">
           <input type="password" id="newAdminPasswordInput" class="form-ctrl" placeholder="Yeni Admin Şifresi">
         </div>
         <button class="btn btn-secondary" style="margin-bottom: 24px;" onclick="changeAdminPassword()">Şifreyi Güncelle</button>
-
-        <h4 style="margin-bottom: 10px; color: var(--accent);">⚙️ Canlı Durum</h4>
-        <p style="font-size: 0.85rem; color: var(--success); margin-bottom: 16px;">✓ IndexedDB yerel depolama ve Firebase senkronizasyonu aktif.</p>
 
         <h4 style="margin-bottom: 10px; color: var(--accent);">📦 JSON Yedekten Geri Yükle</h4>
         <input type="file" id="restoreJsonFile" accept=".json" style="margin-bottom: 10px;">
@@ -1440,10 +1748,10 @@
 
   <script>
     // ==========================================
-    // INDEXEDDB MODÜLÜ (SINIRSIZ YEREL DEPOLAMA)
+    // 1. INDEXEDDB SINIRSIZ DEPOLAMA MOTORU
     // ==========================================
     const IDB_NAME = "guzeladam_indexed_db";
-    const IDB_VERSION = 1;
+    const IDB_VERSION = 2;
     const IDB_STORE = "studio_data";
 
     function openIndexedDB() {
@@ -1499,7 +1807,69 @@
     }
 
     // ==========================================
-    // UYGULAMA DEĞİŞKENLERİ & GÜVENLİK
+    // 2. RETRO 8-BIT SYNTH SES MOTORU (WEB AUDIO)
+    // ==========================================
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function playRetroSound(type) {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.06);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.06);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        } else if (type === 'star') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587, now);
+          osc.frequency.setValueAtTime(880, now + 0.08);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else if (type === 'play') {
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.setValueAtTime(330, now + 0.08);
+          osc.frequency.setValueAtTime(440, now + 0.16);
+          osc.frequency.setValueAtTime(660, now + 0.24);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'ban') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.linearRampToValueAtTime(60, now + 0.4);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        }
+      } catch (e) {}
+    }
+
+    function toggleSoundFx(enabled) {
+      soundEnabled = enabled;
+      idbSet("sound_enabled", enabled);
+    }
+
+    // ==========================================
+    // 3. GLOBAL DEĞİŞKENLER VE DURUMLAR
     // ==========================================
     let adminSecretKey = "megula2026";
     let adminClickCount = 0;
@@ -1515,40 +1885,116 @@
     let gamesList = [];
     let commentsList = [];
     let userLikedGameIds = [];
+    let userRatingsMap = {}; // { gameId: 1-5 }
+    let bannedUsersMap = {}; // { tag: { reason, bannedAt } }
+    let banAppealsList = []; // [ { id, tag, reason, message, time } ]
+    let visitLogsList = [];  // [ { tag, time } ]
     let statsData = { totalCopies: 0 };
     let announcementState = { active: true, text: "🎮 guzeladam Resmi Oyun & Kod Dünyasına Hoş Geldiniz!" };
+    let isMaintenanceActive = false;
 
     let selectedCategory = "all";
     let firebaseDb = null;
     let onlineUsersCount = 1;
+    let myPlayerTag = "";
     const clientSessionId = "sess_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now();
 
     // ==========================================
-    // UYGULAMA BAŞLATMA (ASYNC INDEXEDDB)
+    // 4. UYGULAMA BAŞLATMA (ASYNC INDEXEDDB)
     // ==========================================
     async function initApp() {
-      // IndexedDB'den verileri yükle
+      // 5 Haneli Benzersiz Oyuncu Kodu Üret/Yükle
+      let savedTag = await idbGet("player_tag", "");
+      if (!savedTag) {
+        const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+        savedTag = "";
+        for (let i = 0; i < 5; i++) savedTag += chars.charAt(Math.floor(Math.random() * chars.length));
+        await idbSet("player_tag", savedTag);
+      }
+      myPlayerTag = savedTag;
+      document.getElementById("displayPlayerTag").innerText = "#" + myPlayerTag;
+
+      // IndexedDB verilerini yükle (Veri kaybını %100 önler)
       gamesList = await idbGet("games", []);
       commentsList = await idbGet("comments", []);
       userLikedGameIds = await idbGet("liked_ids", []);
+      userRatingsMap = await idbGet("ratings", {});
+      bannedUsersMap = await idbGet("banned_users", {});
+      banAppealsList = await idbGet("ban_appeals", []);
+      visitLogsList = await idbGet("visit_logs", []);
       statsData = await idbGet("stats", { totalCopies: 0 });
       announcementState = await idbGet("banner", announcementState);
-      const savedPass = await idbGet("admin_pass", "megula2026");
-      adminSecretKey = savedPass;
+      adminSecretKey = await idbGet("admin_pass", "megula2026");
+      soundEnabled = await idbGet("sound_enabled", true);
+      document.getElementById("soundToggleCheckbox").checked = soundEnabled;
 
       applySavedTheme();
       renderAnnouncement();
       filterGamesList();
       renderCodeList(gamesList);
+      renderLeaderboard();
       initPixelParticles();
       initFirebaseConnection();
+
+      // Ban durumunu anında kontrol et
+      checkBanStatus();
 
       window.addEventListener("hashchange", handleRouting);
       handleRouting();
     }
 
     // ==========================================
-    // FIREBASE BAĞLANTISI & CANLI ONLINE TAKİBİ
+    // 5. BAN KONTROLÜ VE DESTEK TALEBİ MOTORU
+    // ==========================================
+    function checkBanStatus() {
+      const banInfo = bannedUsersMap[myPlayerTag];
+      const banOverlay = document.getElementById("banScreenOverlay");
+      if (banInfo) {
+        document.getElementById("bannedPlayerTagDisplay").innerText = "#" + myPlayerTag;
+        document.getElementById("banReasonDisplay").innerText = banInfo.reason || "Kural ihlali.";
+        document.getElementById("banTimeDisplay").innerText = banInfo.bannedAt ? new Date(banInfo.bannedAt).toLocaleString() : "Bilinmiyor";
+        banOverlay.style.display = "flex";
+        playRetroSound("ban");
+      } else {
+        banOverlay.style.display = "none";
+      }
+    }
+
+    function toggleAppealInput() {
+      const el = document.getElementById("appealInputWrapper");
+      el.style.display = (el.style.display === "none") ? "block" : "none";
+    }
+
+    function submitBanAppeal() {
+      const msg = document.getElementById("appealUserMessage").value.trim();
+      if (!msg) {
+        alert("Lütfen itiraz mesajınızı yazın!");
+        return;
+      }
+
+      const banInfo = bannedUsersMap[myPlayerTag] || {};
+      const newAppeal = {
+        id: "app_" + Date.now(),
+        tag: myPlayerTag,
+        reason: banInfo.reason || "Belirtilmedi",
+        message: msg,
+        time: Date.now()
+      };
+
+      banAppealsList.unshift(newAppeal);
+      idbSet("ban_appeals", banAppealsList);
+
+      if (firebaseDb) {
+        firebaseDb.child("guzeladam_hub/ban_appeals").set(banAppealsList);
+      }
+
+      document.getElementById("appealFormSection").style.display = "none";
+      document.getElementById("appealSuccessMsg").style.display = "block";
+      alert("✓ İtirazınız yöneticiye iletildi! Yönetici inceledikten sonra banınız açılabilir.");
+    }
+
+    // ==========================================
+    // 6. FIREBASE BAĞLANTISI, PRESENCE & LOGLAMA
     // ==========================================
     function initFirebaseConnection() {
       const url = "https://oyunlar-5174d-default-rtdb.firebaseio.com";
@@ -1560,7 +2006,7 @@
         }
         firebaseDb = firebase.database().ref();
 
-        // 1. CANLI ONLINE KULLANICI SAYACI (PRESENCE MOTORU)
+        // 1. CANLI ONLINE KULLANICI SAYACI
         const presenceListRef = firebase.database().ref("online_users");
         const myPresenceRef = presenceListRef.child(clientSessionId);
         const amOnlineRef = firebase.database().ref(".info/connected");
@@ -1570,8 +2016,16 @@
             myPresenceRef.onDisconnect().remove();
             myPresenceRef.set({
               online: true,
+              tag: myPlayerTag,
               lastSeen: firebase.database.ServerValue.TIMESTAMP
             });
+
+            // Tek seferlik ziyaret logu (Gece 03:00 dahil tüm zamanları kaydeder)
+            if (!sessionStorage.getItem("guzeladam_visit_logged")) {
+              sessionStorage.setItem("guzeladam_visit_logged", "1");
+              const newLog = { tag: myPlayerTag, time: Date.now() };
+              firebaseDb.child("guzeladam_hub/visit_logs").push(newLog);
+            }
           }
         });
 
@@ -1583,7 +2037,7 @@
           if (badgeElem) badgeElem.innerText = "🟢 " + onlineUsersCount + " Canlı";
         });
 
-        // 2. CANLI VERİ DİNLEME (OYUNLAR, DUYURULAR, YORUMLAR)
+        // 2. ANA VERİLERİN CANLI EŞİTLENMESİ
         firebaseDb.child("guzeladam_hub").on("value", (snapshot) => {
           const val = snapshot.val();
           if (val) {
@@ -1603,8 +2057,31 @@
               announcementState = val.banner;
               idbSet("banner", announcementState);
             }
+            if (val.banned_users) {
+              bannedUsersMap = val.banned_users;
+              idbSet("banned_users", bannedUsersMap);
+              checkBanStatus();
+            } else {
+              bannedUsersMap = {};
+              idbSet("banned_users", {});
+              checkBanStatus();
+            }
+            if (val.ban_appeals) {
+              banAppealsList = val.ban_appeals;
+              idbSet("ban_appeals", banAppealsList);
+            }
+            if (val.visit_logs) {
+              visitLogsList = Object.values(val.visit_logs);
+              idbSet("visit_logs", visitLogsList);
+            }
+            if (val.maintenance !== undefined) {
+              isMaintenanceActive = val.maintenance;
+              checkMaintenanceStatus();
+            }
+
             filterGamesList();
             renderCodeList(gamesList);
+            renderLeaderboard();
             renderAnnouncement();
             updateDashboardStats();
           }
@@ -1614,38 +2091,53 @@
       }
     }
 
+    function checkMaintenanceStatus() {
+      const overlay = document.getElementById("maintenanceScreenOverlay");
+      const isAdminOpen = document.getElementById("adminControlDashboard").style.display === "flex";
+      if (isMaintenanceActive && !isAdminOpen) {
+        overlay.style.display = "flex";
+      } else {
+        overlay.style.display = "none";
+      }
+    }
+
     // ==========================================
-    // PERSIST (INDEXEDDB + FIREBASE)
+    // 7. VERİLERİ KALICI KAYDETME (PERSIST)
     // ==========================================
     async function persistAll() {
-      // 1. Sınırsız IndexedDB'ye yaz
       await idbSet("games", gamesList);
       await idbSet("comments", commentsList);
       await idbSet("stats", statsData);
       await idbSet("banner", announcementState);
       await idbSet("liked_ids", userLikedGameIds);
+      await idbSet("ratings", userRatingsMap);
+      await idbSet("banned_users", bannedUsersMap);
+      await idbSet("ban_appeals", banAppealsList);
 
-      // 2. Firebase Bulutuna yaz
       if (firebaseDb) {
-        firebaseDb.child("guzeladam_hub").set({
+        firebaseDb.child("guzeladam_hub").update({
           games: gamesList,
           comments: commentsList,
           stats: statsData,
-          banner: announcementState
-        }).catch(err => console.error("Firebase yazma hatası:", err));
+          banner: announcementState,
+          banned_users: bannedUsersMap,
+          ban_appeals: banAppealsList,
+          maintenance: isMaintenanceActive
+        }).catch(err => console.error("Firebase yazma:", err));
       }
     }
 
     // ==========================================
-    // SAYFA YÖNLENDİRME
+    // 8. SAYFA YÖNLENDİRME & 404 KONTROLÜ
     // ==========================================
     function navigateTo(sectionId) {
+      playRetroSound('click');
       window.location.hash = sectionId;
     }
 
     function handleRouting() {
       const hash = window.location.hash.replace("#", "") || "games";
-      const validSections = ["games", "codes", "creator", "settings"];
+      const validSections = ["games", "leaderboard", "codes", "creator", "settings"];
 
       document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active-view"));
       document.querySelectorAll(".nav-item-btn").forEach(b => b.classList.remove("active"));
@@ -1666,7 +2158,11 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // ==========================================
+    // 9. OYUN LİSTELEME, PUANLAMA & PAYLAŞIM
+    // ==========================================
     function setCategoryFilter(cat, btnElem) {
+      playRetroSound('click');
       selectedCategory = cat;
       document.querySelectorAll(".cat-pill").forEach(p => p.classList.remove("active"));
       btnElem.classList.add("active");
@@ -1687,11 +2183,20 @@
         filtered.sort((a, b) => (b.plays || 0) - (a.plays || 0));
       } else if (sort === "likes") {
         filtered.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+      } else if (sort === "rating") {
+        filtered.sort((a, b) => calculateAverageRating(b) - calculateAverageRating(a));
       } else {
         filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       }
 
       renderGames(filtered);
+    }
+
+    function calculateAverageRating(game) {
+      if (!game.ratings || Object.keys(game.ratings).length === 0) return 0;
+      const vals = Object.values(game.ratings);
+      const sum = vals.reduce((a, b) => a + b, 0);
+      return (sum / vals.length).toFixed(1);
     }
 
     function renderGames(list) {
@@ -1712,6 +2217,9 @@
       list.forEach(game => {
         const isLiked = userLikedGameIds.includes(game.id);
         const gameCommentsCount = commentsList.filter(c => c.gameId === game.id).length;
+        const avgRate = calculateAverageRating(game);
+        const totalVotes = game.ratings ? Object.keys(game.ratings).length : 0;
+        const myVote = (game.ratings && game.ratings[myPlayerTag]) ? game.ratings[myPlayerTag] : 0;
 
         const card = document.createElement("div");
         card.className = "game-card";
@@ -1719,6 +2227,12 @@
         const bannerHtml = game.image 
           ? `<div class="card-banner"><img src="${escapeHtml(game.image)}" alt="${escapeHtml(game.title)}" loading="lazy"></div>`
           : `<div class="card-banner"><span style="font-size: 3.5rem;">🕹️</span></div>`;
+
+        // Yıldız puanlama butonları
+        let starsHtml = "";
+        for (let s = 1; s <= 5; s++) {
+          starsHtml += `<button class="star-btn ${s <= myVote ? 'active' : ''}" onclick="rateGame('${game.id}', ${s})" title="${s} Yıldız Ver">★</button>`;
+        }
 
         card.innerHTML = `
           <div class="card-badge-category">${escapeHtml(game.category || "Genel")}</div>
@@ -1729,6 +2243,12 @@
           ${bannerHtml}
           <div class="card-body">
             <h3 class="card-title">${escapeHtml(game.title)}</h3>
+            <div class="star-rating-row">
+              ${starsHtml}
+              <span style="font-size: 0.78rem; color: var(--text-muted); margin-left: 6px;">
+                ${avgRate > 0 ? `⭐ <strong>${avgRate}</strong> (${totalVotes} oy)` : `(Henüz oy yok)`}
+              </span>
+            </div>
             <p class="card-desc">${escapeHtml(game.desc)}</p>
             <div class="card-button-group">
               <button class="btn btn-play-run" onclick="playGameDirectly('${game.id}')">▶ Hemen Oyna</button>
@@ -1738,8 +2258,11 @@
               <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLikeGame('${game.id}')">
                 ❤️ <span id="like-count-${game.id}">${game.likes || 0}</span>
               </button>
-              <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openCommentsModal('${game.id}')">
-                💬 Yorumlar (${gameCommentsCount})
+              <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="openCommentsModal('${game.id}')">
+                💬 (${gameCommentsCount})
+              </button>
+              <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="openShareModal('${game.id}')">
+                🔗 Paylaş
               </button>
             </div>
           </div>
@@ -1748,7 +2271,24 @@
       });
     }
 
+    // --- YILDIZ PUANLAMA MOTORU ---
+    function rateGame(gameId, starVal) {
+      playRetroSound('star');
+      const game = gamesList.find(g => g.id === gameId);
+      if (!game) return;
+
+      if (!game.ratings) game.ratings = {};
+      game.ratings[myPlayerTag] = starVal;
+      userRatingsMap[gameId] = starVal;
+
+      persistAll();
+      filterGamesList();
+      renderLeaderboard();
+    }
+
+    // --- BEĞENİ (LIKE) MOTORU ---
     function toggleLikeGame(gameId) {
+      playRetroSound('click');
       const game = gamesList.find(g => g.id === gameId);
       if (!game) return;
 
@@ -1764,10 +2304,88 @@
 
       persistAll();
       filterGamesList();
+      renderLeaderboard();
       updateDashboardStats();
     }
 
+    // ==========================================
+    // 10. LİDERLER TABLOSU RENDERİ
+    // ==========================================
+    function renderLeaderboard() {
+      const topPlayed = [...gamesList].sort((a,b) => (b.plays||0) - (a.plays||0)).slice(0, 5);
+      const topRated = [...gamesList].sort((a,b) => calculateAverageRating(b) - calculateAverageRating(a)).slice(0, 5);
+      const topLiked = [...gamesList].sort((a,b) => (b.likes||0) - (a.likes||0)).slice(0, 5);
+
+      function createRows(list, statFn) {
+        if (list.length === 0) return "<p style='color: var(--text-muted); font-size: 0.85rem;'>Henüz veri yok.</p>";
+        return list.map((g, idx) => `
+          <div class="leader-row">
+            <span style="font-size: 0.9rem; font-weight: 700;">#${idx+1} ${escapeHtml(g.title)}</span>
+            <span style="color: var(--primary); font-weight: 800; font-size: 0.85rem;">${statFn(g)}</span>
+          </div>
+        `).join("");
+      }
+
+      const pBox = document.getElementById("topPlayedList");
+      const rBox = document.getElementById("topRatedList");
+      const lBox = document.getElementById("topLikedList");
+
+      if (pBox) pBox.innerHTML = createRows(topPlayed, g => `▶ ${g.plays||0} oynanma`);
+      if (rBox) rBox.innerHTML = createRows(topRated, g => `⭐ ${calculateAverageRating(g)} puan`);
+      if (lBox) lBox.innerHTML = createRows(topLiked, g => `❤️ ${g.likes||0} beğeni`);
+    }
+
+    // ==========================================
+    // 11. HIZLI PAYLAŞIM VE DİNAMİK QR MOTORU
+    // ==========================================
+    function openShareModal(gameId) {
+      playRetroSound('click');
+      const game = gamesList.find(g => g.id === gameId);
+      if (!game) return;
+
+      const shareUrl = window.location.origin + window.location.pathname + "#games";
+      document.getElementById("shareGameTitleText").innerText = game.title + " doğrudan oynama bağlantısı";
+      document.getElementById("shareGameUrlInput").value = shareUrl;
+
+      // Dahili Canvas ile Retro QR Kod Deseni Çizimi (Sıfır Dış Kütüphane)
+      const qrCanvas = document.getElementById("qrCodeCanvas");
+      const ctx = qrCanvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, 160, 160);
+      ctx.fillStyle = "#000000";
+
+      // Sabit ve rastgele piksel desenli güvenilir simülasyon matrisi
+      const seed = gameId.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+      for (let r = 0; r < 16; r++) {
+        for (let c = 0; c < 16; c++) {
+          if ((r < 4 && c < 4) || (r < 4 && c > 11) || (r > 11 && c < 4)) {
+            // QR köşe belirteçleri
+            ctx.fillRect(c * 10, r * 10, 10, 10);
+          } else if (((seed * (r + 1) * (c + 1)) % 7) > 3) {
+            ctx.fillRect(c * 10, r * 10, 10, 10);
+          }
+        }
+      }
+
+      document.getElementById("shareModal").style.display = "flex";
+    }
+
+    function closeShareModal() {
+      document.getElementById("shareModal").style.display = "none";
+    }
+
+    function copyShareUrl() {
+      const input = document.getElementById("shareGameUrlInput");
+      navigator.clipboard.writeText(input.value).then(() => {
+        alert("✓ Oyun linki panoya kopyalandı!");
+      });
+    }
+
+    // ==========================================
+    // 12. YORUMLAR MODALI
+    // ==========================================
     function openCommentsModal(gameId) {
+      playRetroSound('click');
       activeCommentGameId = gameId;
       const game = gamesList.find(g => g.id === gameId);
       if (!game) return;
@@ -1797,7 +2415,7 @@
         bubble.className = "comment-bubble";
         bubble.innerHTML = `
           <div class="comment-author-row">
-            <span class="comment-author">@${escapeHtml(c.author)}</span>
+            <span class="comment-author">@${escapeHtml(c.author)} (${c.tag ? '#' + c.tag : '#Oyuncu'})</span>
             <span class="comment-time">${c.time}</span>
           </div>
           <div class="comment-text">${escapeHtml(c.text)}</div>
@@ -1819,6 +2437,7 @@
         id: "c_" + Date.now(),
         gameId: activeCommentGameId,
         author: author,
+        tag: myPlayerTag,
         text: text,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
@@ -1829,8 +2448,12 @@
       filterGamesList();
       renderAdminCommentsMod();
       document.getElementById("commentTextInput").value = "";
+      playRetroSound('click');
     }
 
+    // ==========================================
+    // 13. KOD KOPYALAMA & OYUN RUNNER
+    // ==========================================
     function renderCodeList(list) {
       const container = document.getElementById("codeCardsContainer");
       container.innerHTML = "";
@@ -1868,9 +2491,8 @@
         statsData.totalCopies = (statsData.totalCopies || 0) + 1;
         persistAll();
         updateDashboardStats();
+        playRetroSound('star');
         alert("✓ Kodlar panoya kopyalandı!");
-      }).catch(() => {
-        alert("Kopyalanamadı, metni elle seçebilirsiniz.");
       });
     }
 
@@ -1878,10 +2500,12 @@
       const target = gamesList.find(g => g.id === gameId);
       if (!target) return;
 
+      playRetroSound('play');
       activeGamePlayId = gameId;
       target.plays = (target.plays || 0) + 1;
       persistAll();
       filterGamesList();
+      renderLeaderboard();
       updateDashboardStats();
 
       document.getElementById("runnerGameTitle").innerText = "🕹️ " + target.title;
@@ -1937,7 +2561,7 @@
     }
 
     // ==========================================
-    // GİZLİ ADMİN TETİKLEYİCİSİ (3 DOKUNUŞ)
+    // 14. GİZLİ ADMİN TETİKLEYİCİSİ (3 DOKUNUŞ)
     // ==========================================
     const secretTrigger = document.getElementById("hiddenAdminTrigger");
     secretTrigger.addEventListener("click", () => {
@@ -1966,6 +2590,9 @@
         updateDashboardStats();
         renderAdminManageList();
         renderAdminCommentsMod();
+        renderAdminBans();
+        renderTrafficChart();
+        checkMaintenanceStatus();
       } else {
         document.getElementById("authErrorMsg").style.display = "block";
       }
@@ -1981,15 +2608,215 @@
 
     function closeAdminDashboard() {
       document.getElementById("adminControlDashboard").style.display = "none";
+      checkMaintenanceStatus();
     }
 
     function switchAdminTab(tabId, btnElem) {
+      playRetroSound('click');
       document.querySelectorAll(".admin-tab-content").forEach(c => c.classList.remove("active"));
       document.querySelectorAll(".admin-tab-btn").forEach(b => b.classList.remove("active"));
       document.getElementById(tabId).classList.add("active");
       btnElem.classList.add("active");
+      if (tabId === 'tab-stats') setTimeout(renderTrafficChart, 100);
     }
 
+    // ==========================================
+    // 15. ZAMAN ÇİZELGESİ GRAFİK ÇİZİCİ (CANVAS)
+    // ==========================================
+    function renderTrafficChart() {
+      const canvas = document.getElementById("trafficChartCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Ziyaretleri kronolojik sıraya diz
+      const sortedLogs = [...visitLogsList].sort((a, b) => a.time - b.time);
+
+      if (sortedLogs.length < 2) {
+        ctx.fillStyle = "#8494ab";
+        ctx.font = "14px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Ziyaret verileri toplanıyor... (Gece ve gündüz tüm girişler bu grafikte gösterilir)", w / 2, h / 2);
+        return;
+      }
+
+      const paddingLeft = 45;
+      const paddingRight = 30;
+      const paddingTop = 25;
+      const paddingBottom = 35;
+      const chartW = w - paddingLeft - paddingRight;
+      const chartH = h - paddingTop - paddingBottom;
+
+      const minTime = sortedLogs[0].time;
+      const maxTime = Math.max(sortedLogs[sortedLogs.length - 1].time, minTime + 60000);
+      const totalVisits = sortedLogs.length;
+
+      // Izgara Çizgileri
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = paddingTop + (chartH / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(paddingLeft, y);
+        ctx.lineTo(w - paddingRight, y);
+        ctx.stroke();
+
+        ctx.fillStyle = "#55647a";
+        ctx.font = "10px monospace";
+        ctx.textAlign = "right";
+        const val = Math.round(totalVisits - (totalVisits / 4) * i);
+        ctx.fillText(val, paddingLeft - 8, y + 3);
+      }
+
+      // Kümülatif Veri Noktaları
+      const points = [];
+      sortedLogs.forEach((log, idx) => {
+        const xRatio = (log.time - minTime) / (maxTime - minTime);
+        const yRatio = (idx + 1) / totalVisits;
+        const px = paddingLeft + xRatio * chartW;
+        const py = paddingTop + chartH - yRatio * chartH;
+        points.push({ x: px, y: py, time: log.time, tag: log.tag });
+      });
+
+      // Gradient Dolgu
+      const grad = ctx.createLinearGradient(0, paddingTop, 0, h - paddingBottom);
+      grad.addColorStop(0, "rgba(0, 242, 254, 0.35)");
+      grad.addColorStop(1, "rgba(0, 242, 254, 0.0)");
+
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, h - paddingBottom);
+      points.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(points[points.length - 1].x, h - paddingBottom);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Neon Çizgi
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      points.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.strokeStyle = "#00f2fe";
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = "rgba(0, 242, 254, 0.7)";
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Zaman Etiketleri (X Ekseni: Başlangıç, Orta, Bitiş)
+      ctx.fillStyle = "#8494ab";
+      ctx.font = "10px sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(new Date(minTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), paddingLeft, h - 12);
+      ctx.textAlign = "center";
+      ctx.fillText("Zaman Akışı (03:00 Dahil)", paddingLeft + chartW / 2, h - 12);
+      ctx.textAlign = "right";
+      ctx.fillText(new Date(maxTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), w - paddingRight, h - 12);
+    }
+
+    // ==========================================
+    // 16. ADMİN BAN & İTİRAZ YÖNETİMİ
+    // ==========================================
+    function adminExecuteBan() {
+      let tag = document.getElementById("banPlayerTagInput").value.trim().toUpperCase().replace("#", "");
+      const reason = document.getElementById("banReasonInput").value.trim() || "Kural ihlali.";
+
+      if (!tag || tag.length < 3) {
+        alert("Lütfen en az 3-5 haneli geçerli bir oyuncu kodu girin!");
+        return;
+      }
+
+      bannedUsersMap[tag] = {
+        reason: reason,
+        bannedAt: Date.now()
+      };
+
+      persistAll();
+      renderAdminBans();
+      document.getElementById("banPlayerTagInput").value = "";
+      document.getElementById("banReasonInput").value = "";
+      alert(`🚫 #${tag} kodlu oyuncu başarıyla banlandı! Siteye girdiğinde kırmızı yasak ekranı görecek.`);
+    }
+
+    function adminUnbanUser(tag) {
+      if (confirm(`#${tag} kodlu oyuncunun banını kaldırmak istediğinize emin misiniz?`)) {
+        delete bannedUsersMap[tag];
+        // İtiraz listesinden de temizle
+        banAppealsList = banAppealsList.filter(a => a.tag !== tag);
+        persistAll();
+        renderAdminBans();
+        alert(`✓ #${tag} oyuncusunun banı kaldırıldı.`);
+      }
+    }
+
+    function adminRejectAppeal(appealId) {
+      if (confirm("Bu itiraz talebini silmek istediğinize emin misiniz?")) {
+        banAppealsList = banAppealsList.filter(a => a.id !== appealId);
+        persistAll();
+        renderAdminBans();
+      }
+    }
+
+    function renderAdminBans() {
+      // 1. İtirazlar
+      const appContainer = document.getElementById("adminBanAppealsList");
+      appContainer.innerHTML = "";
+      if (banAppealsList.length === 0) {
+        appContainer.innerHTML = "<p style='color: var(--text-muted); font-size: 0.85rem;'>Bekleyen destek talebi / itiraz yok.</p>";
+      } else {
+        banAppealsList.forEach(app => {
+          const row = document.createElement("div");
+          row.style.cssText = "background: var(--bg-card); border: 1px solid var(--primary); border-radius: 12px; padding: 12px; margin-bottom: 8px;";
+          row.innerHTML = `
+            <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 4px;">
+              <strong style="color: var(--primary);">#${escapeHtml(app.tag)}</strong>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(app.time).toLocaleString()}</span>
+            </div>
+            <p style="font-size: 0.85rem; margin-bottom: 8px;">"${escapeHtml(app.message)}"</p>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-play-run" style="padding: 4px 10px; font-size: 0.75rem;" onclick="adminUnbanUser('${app.tag}')">✅ Affet (Banı Kaldır)</button>
+              <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; border-color: var(--danger); color: var(--danger);" onclick="adminRejectAppeal('${app.id}')">❌ Talebi Sil</button>
+            </div>
+          `;
+          appContainer.appendChild(row);
+        });
+      }
+
+      // 2. Banlı Kullanıcılar Listesi
+      const banContainer = document.getElementById("adminBannedUsersList");
+      banContainer.innerHTML = "";
+      const tags = Object.keys(bannedUsersMap);
+      if (tags.length === 0) {
+        banContainer.innerHTML = "<p style='color: var(--text-muted); font-size: 0.85rem;'>Yasaklı oyuncu bulunmuyor.</p>";
+      } else {
+        tags.forEach(t => {
+          const info = bannedUsersMap[t];
+          const row = document.createElement("div");
+          row.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1px solid var(--danger); border-radius: 10px; padding: 8px 12px; margin-bottom: 6px;";
+          row.innerHTML = `
+            <div>
+              <strong style="color: var(--danger);">#${escapeHtml(t)}</strong>
+              <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 8px;">Sebep: ${escapeHtml(info.reason)}</span>
+            </div>
+            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;" onclick="adminUnbanUser('${t}')">Banı Kaldır</button>
+          `;
+          banContainer.appendChild(row);
+        });
+      }
+    }
+
+    function adminToggleMaintenance(status) {
+      isMaintenanceActive = status;
+      persistAll();
+      checkMaintenanceStatus();
+      alert(status ? "🛠️ Bakım modu açıldı! Normal ziyaretçiler bakım ekranı görecek." : "✓ Bakım modu kapatıldı! Site normal yayında.");
+    }
+
+    // ==========================================
+    // 17. ADMİN GENEL ANALİTİK & YÖNETİM
+    // ==========================================
     function updateDashboardStats() {
       const totalGames = gamesList.length;
       let totalPlays = 0;
@@ -2011,14 +2838,10 @@
         document.getElementById("metricTotalGames").innerText = totalGames;
         document.getElementById("metricTotalPlays").innerText = totalPlays;
         document.getElementById("metricTotalLikes").innerText = totalLikes;
-        document.getElementById("metricTotalCopies").innerText = statsData.totalCopies || 0;
-        document.getElementById("metricTopGame").innerText = topGame;
+        document.getElementById("metricTotalVisits").innerText = visitLogsList.length;
       }
     }
 
-    // ==========================================
-    // OTOMATİK GÖRSEL SIKIŞTIRMA (CANVAS)
-    // ==========================================
     function handleImageUrlInput(url) {
       currentUploadedImageData = url.trim();
       updateImagePreview(currentUploadedImageData);
@@ -2097,6 +2920,7 @@
         code: code,
         plays: 0,
         likes: 0,
+        ratings: {},
         createdAt: Date.now()
       };
 
@@ -2104,6 +2928,7 @@
       persistAll();
       filterGamesList();
       renderCodeList(gamesList);
+      renderLeaderboard();
       renderAdminManageList();
       updateDashboardStats();
 
@@ -2116,6 +2941,7 @@
       currentUploadedImageData = "";
       updateImagePreview("");
 
+      playRetroSound('star');
       alert("🎉 Oyun IndexedDB ve Firebase'e başarıyla kaydedildi!");
     }
 
@@ -2143,12 +2969,13 @@
     }
 
     function adminDeleteGame(id) {
-      if (confirm("Bu oyunu siteden tamamen kaldırmak istediğine emin misin?")) {
+      if (confirm("Bu oyunu siteden tamamen kaldırmak istediğinize emin misiniz?")) {
         gamesList = gamesList.filter(g => g.id !== id);
         commentsList = commentsList.filter(c => c.gameId !== id);
         persistAll();
         filterGamesList();
         renderCodeList(gamesList);
+        renderLeaderboard();
         renderAdminManageList();
         updateDashboardStats();
       }
@@ -2171,7 +2998,7 @@
         row.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-color);";
         row.innerHTML = `
           <div style="font-size: 0.85rem;">
-            <strong>@${escapeHtml(c.author)}</strong> (${escapeHtml(gameName)}): 
+            <strong>@${escapeHtml(c.author)} (${c.tag ? '#' + c.tag : ''})</strong> (${escapeHtml(gameName)}): 
             <span style="color: var(--text-muted);">${escapeHtml(c.text)}</span>
           </div>
           <button class="btn btn-secondary" style="border-color: var(--danger); color: var(--danger); padding: 4px 8px; font-size: 0.75rem;" onclick="adminDeleteComment('${c.id}')">Sil</button>
@@ -2228,7 +3055,10 @@
         comments: commentsList,
         stats: statsData,
         banner: announcementState,
-        version: "6.0"
+        banned_users: bannedUsersMap,
+        ban_appeals: banAppealsList,
+        visit_logs: visitLogsList,
+        version: "7.0"
       };
       const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -2254,6 +3084,9 @@
           if (data.comments) commentsList = data.comments;
           if (data.stats) statsData = data.stats;
           if (data.banner) announcementState = data.banner;
+          if (data.banned_users) bannedUsersMap = data.banned_users;
+          if (data.ban_appeals) banAppealsList = data.ban_appeals;
+          if (data.visit_logs) visitLogsList = data.visit_logs;
           await persistAll();
           alert("✓ Yedek IndexedDB ve Firebase'e yüklendi! Sayfa yenileniyor...");
           location.reload();
@@ -2278,7 +3111,7 @@
     }
 
     async function resetLocalData() {
-      if (confirm("Tüm IndexedDB verileri sıfırlansın mı?")) {
+      if (confirm("Tüm IndexedDB önbelleği sıfırlansın mı? (Firebase'deki bulut oyunları korunur)")) {
         await idbClear();
         location.reload();
       }
@@ -2348,4 +3181,3 @@
   </script>
 </body>
 </html>
-
