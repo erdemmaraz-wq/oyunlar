@@ -67,7 +67,6 @@
       transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* PİKSEL CANVAS & RETRO GRID */
     #pixelBackgroundCanvas {
       position: fixed;
       top: 0;
@@ -92,7 +91,6 @@
       background-size: 36px 36px;
     }
 
-    /* SCROLLBAR */
     ::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -108,7 +106,6 @@
       background: var(--primary);
     }
 
-    /* DUYURU BANDI */
     #globalAnnouncementBar {
       display: none;
       position: sticky;
@@ -124,7 +121,6 @@
       box-shadow: 0 4px 18px var(--primary-glow);
     }
 
-    /* SAYFA YAPISI */
     .app-layout {
       position: relative;
       z-index: 10;
@@ -133,7 +129,6 @@
       min-height: 100vh;
     }
 
-    /* SOL MENÜ */
     .sidebar {
       width: 260px;
       background: var(--bg-surface);
@@ -224,7 +219,6 @@
       font-size: 1.25rem;
     }
 
-    /* İÇERİK ALANI */
     .content-area {
       flex: 1;
       display: flex;
@@ -267,7 +261,6 @@
       font-size: 1rem;
     }
 
-    /* FİLTRELER */
     .filter-controls-wrap {
       display: flex;
       flex-direction: column;
@@ -340,7 +333,6 @@
       box-shadow: 0 0 12px var(--primary-glow);
     }
 
-    /* OYUN KARTLARI */
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -516,7 +508,6 @@
       color: var(--primary);
     }
 
-    /* BOŞ DURUM */
     .empty-state-box {
       grid-column: 1 / -1;
       text-align: center;
@@ -542,7 +533,6 @@
       line-height: 1.6;
     }
 
-    /* KOD DEPOSU */
     .code-list-container {
       display: flex;
       flex-direction: column;
@@ -582,7 +572,6 @@
       word-break: break-all;
     }
 
-    /* YAPIMCI KARTI */
     .creator-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
@@ -652,7 +641,6 @@
       filter: brightness(1.15);
     }
 
-    /* AYARLAR */
     .settings-container {
       max-width: 680px;
       display: flex;
@@ -716,7 +704,6 @@
       transform: translateX(24px);
     }
 
-    /* 404 NOT FOUND */
     .not-found-card {
       text-align: center;
       padding: 70px 20px;
@@ -731,7 +718,6 @@
       margin-bottom: 10px;
     }
 
-    /* PRO OYUN HUD */
     .runner-modal {
       display: none;
       position: fixed;
@@ -791,7 +777,6 @@
       background: #ffffff;
     }
 
-    /* YORUMLAR MODALI */
     .comments-drawer-modal {
       display: none;
       position: fixed;
@@ -856,7 +841,6 @@
       color: var(--text-main);
     }
 
-    /* GİZLİ TETİKLEYİCİ */
     #hiddenAdminTrigger {
       position: fixed;
       right: 0;
@@ -871,7 +855,6 @@
       user-select: none;
     }
 
-    /* ADMİN MASASI */
     .admin-modal-bg {
       display: none;
       position: fixed;
@@ -889,7 +872,7 @@
       border: 1px solid var(--primary);
       border-radius: 22px;
       width: 100%;
-      max-width: 820px;
+      max-width: 860px;
       padding: 28px;
       max-height: 92vh;
       overflow-y: auto;
@@ -931,10 +914,9 @@
       display: block;
     }
 
-    /* ANALİTİK KARTLARI */
     .stats-grid-dashboard {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 14px;
       margin-bottom: 24px;
     }
@@ -960,7 +942,6 @@
       font-weight: 700;
     }
 
-    /* FORMLAR */
     .form-group {
       margin-bottom: 15px;
     }
@@ -1000,7 +981,6 @@
       background: #fff;
     }
 
-    /* RESİM ÖNİZLEME */
     .image-preview-box {
       margin-top: 10px;
       width: 100%;
@@ -1019,7 +999,6 @@
       object-fit: cover;
     }
 
-    /* FOOTER */
     footer {
       position: relative;
       z-index: 10;
@@ -1032,7 +1011,6 @@
       line-height: 1.6;
     }
 
-    /* MOBİL SABİT ALT BAR */
     .bottom-bar {
       display: none;
       position: fixed;
@@ -1081,11 +1059,9 @@
 </head>
 <body>
 
-  <!-- PİKSEL CANVAS & GRID -->
   <canvas id="pixelBackgroundCanvas"></canvas>
   <div class="retro-grid-overlay"></div>
 
-  <!-- DUYURU BANDI -->
   <div id="globalAnnouncementBar">
     📢 <span id="announcementContent">Hoş geldiniz!</span>
   </div>
@@ -1145,7 +1121,6 @@
               </select>
             </div>
 
-            <!-- KATEGORİ HAPLARI -->
             <div class="category-pills-row">
               <button class="cat-pill active" onclick="setCategoryFilter('all', this)">Tümü</button>
               <button class="cat-pill" onclick="setCategoryFilter('Retro/Piksel', this)">🕹️ Retro/Piksel</button>
@@ -1157,9 +1132,7 @@
           </div>
         </div>
 
-        <div class="cards-grid" id="gamesCardsContainer">
-          <!-- Dinamik Oyun Kartları -->
-        </div>
+        <div class="cards-grid" id="gamesCardsContainer"></div>
       </section>
 
       <!-- 2. BÖLÜM: KAYNAK KODLAR -->
@@ -1168,9 +1141,7 @@
           <h1>💾 Açık Kaynak Kod Deposu</h1>
           <p>Biz açık kaynak topluluğuyuz! Yayınlanan tüm oyunların kaynak kodlarını tek tıkla kopyala.</p>
         </div>
-        <div class="code-list-container" id="codeCardsContainer">
-          <!-- Dinamik Kod Kartları -->
-        </div>
+        <div class="code-list-container" id="codeCardsContainer"></div>
       </section>
 
       <!-- 3. BÖLÜM: YAPIMCILAR -->
@@ -1184,7 +1155,7 @@
           </p>
           <a href="https://www.youtube.com/@erdemmaraz5246" target="_blank" rel="noopener noreferrer" class="yt-btn">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
             </svg>
             YouTube: @guzeladam
           </a>
@@ -1230,8 +1201,8 @@
 
           <div class="setting-row">
             <div class="setting-info">
-              <h4>Yerel Hafızayı Sıfırla</h4>
-              <p>Eklenen tüm verileri varsayılana döndür</p>
+              <h4>IndexedDB Veritabanını Sıfırla</h4>
+              <p>Yerel veritabanındaki tüm önbelleği temizle</p>
             </div>
             <button class="btn btn-secondary" style="border-color: var(--danger); color: var(--danger);" onclick="resetLocalData()">Sıfırla</button>
           </div>
@@ -1251,7 +1222,6 @@
     </main>
   </div>
 
-  <!-- MOBİL SABİT ALT BAR -->
   <nav class="bottom-bar">
     <button class="bottom-btn active" id="bot-games" onclick="navigateTo('games')">
       <span class="b-icon">🎮</span> Oyunlar
@@ -1267,7 +1237,6 @@
     </button>
   </nav>
 
-  <!-- FOOTER -->
   <footer>
     <p><strong>© 2026 guzeladam</strong> — Tüm Hakları Saklıdır.</p>
     <p style="font-size: 0.78rem; margin-top: 5px;">
@@ -1291,7 +1260,7 @@
     <div class="runner-frame-container" id="runnerFrameContainer"></div>
   </div>
 
-  <!-- YORUMLAR MODALI -->
+  <!-- YORUMLAR -->
   <div class="comments-drawer-modal" id="commentsModal">
     <div class="comments-dialog">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
@@ -1299,11 +1268,8 @@
         <button class="btn btn-secondary" style="padding: 4px 10px;" onclick="closeCommentsModal()">✖</button>
       </div>
 
-      <div class="comments-list-box" id="commentsListBox">
-        <!-- Dinamik Yorumlar -->
-      </div>
+      <div class="comments-list-box" id="commentsListBox"></div>
 
-      <!-- Yeni Yorum Formu -->
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <input type="text" id="commentAuthorInput" class="form-ctrl" placeholder="Adınız / Kullanıcı Adınız">
         <div style="display: flex; gap: 8px;">
@@ -1314,10 +1280,9 @@
     </div>
   </div>
 
-  <!-- SAĞ ORTA GİZLİ TETİKLEYİCİ -->
   <div id="hiddenAdminTrigger"></div>
 
-  <!-- ADMİN ŞİFRE GİRİŞ MODALI -->
+  <!-- ADMİN ŞİFRE MODALI -->
   <div class="admin-modal-bg" id="adminAuthModal">
     <div class="admin-dialog-box" style="max-width: 380px; text-align: center;">
       <h3 style="margin-bottom: 8px; color: var(--primary);">🔒 Yetkili Girişi</h3>
@@ -1333,27 +1298,33 @@
     </div>
   </div>
 
-  <!-- ADMİN DASHBOARD -->
+  <!-- ADMİN MASASI -->
   <div class="admin-modal-bg" id="adminControlDashboard">
     <div class="admin-dialog-box">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h2 style="font-size: 1.35rem; color: var(--primary);">⚡ guzeladam Admin Masası</h2>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h2 style="font-size: 1.35rem; color: var(--primary);">⚡ guzeladam Admin Masası</h2>
+          <span id="adminLiveOnlineBadge" style="background: rgba(46, 213, 115, 0.15); border: 1px solid var(--success); color: var(--success); padding: 3px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 800;">🟢 0 Canlı</span>
+        </div>
         <button class="btn btn-secondary" style="padding: 4px 10px;" onclick="closeAdminDashboard()">✖</button>
       </div>
 
-      <!-- ADMİN SEKMELERİ -->
       <div class="admin-tabs-row">
         <button class="admin-tab-btn active" onclick="switchAdminTab('tab-stats', this)">📊 Canlı Analitik</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('tab-addgame', this)">➕ Oyun Ekle</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('tab-managegames', this)">📋 Oyunları Yönet</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('tab-modcomments', this)">💬 Yorum Moderasyonu</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('tab-announcement', this)">📢 Duyuru</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('tab-integrations', this)">⚙️ Entegrasyon & Güvenlik</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('tab-integrations', this)">⚙️ Güvenlik & Yedek</button>
       </div>
 
-      <!-- SEKME 1: ANALİTİK -->
+      <!-- SEKME 1: ANALİTİK (ONLINE SAYACI EKLENDİ) -->
       <div id="tab-stats" class="admin-tab-content active">
         <div class="stats-grid-dashboard">
+          <div class="stat-metric-card" style="border-color: var(--success); box-shadow: 0 0 15px rgba(46, 213, 115, 0.15);">
+            <div class="stat-metric-val" id="metricOnlineUsers" style="color: var(--success);">0</div>
+            <div class="stat-metric-label">🟢 Şu Anda Online</div>
+          </div>
           <div class="stat-metric-card">
             <div class="stat-metric-val" id="metricTotalGames">0</div>
             <div class="stat-metric-label">Toplam Oyun</div>
@@ -1373,7 +1344,7 @@
         </div>
         <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
           <h4 style="font-size: 0.95rem; margin-bottom: 8px; color: var(--accent);">🔥 En Popüler Oyun: <span id="metricTopGame" style="color: #fff;">-</span></h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">İstatistikler kullanıcılar oyunları oynadıkça ve beğendikçe otomatik olarak güncellenir.</p>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Tüm veriler tarayıcının IndexedDB altyapısında sınırsız depolanır ve Firebase üzerinden canlı olarak güncellenir.</p>
         </div>
       </div>
 
@@ -1401,7 +1372,7 @@
         </div>
 
         <div class="form-group">
-          <label>Kapak Görseli (URL veya Galeriden Dosya)</label>
+          <label>Kapak Görseli (Otomatik Sıkıştırma Aktif)</label>
           <input type="text" id="adminNewGameImgUrl" class="form-ctrl" placeholder="https://resim-linki.com/gorsel.jpg" oninput="handleImageUrlInput(this.value)">
           <div style="margin-top: 8px; display: flex; align-items: center; gap: 10px;">
             <input type="file" id="adminGameImgFile" accept="image/*" style="display: none;" onchange="handleImageFileUpload(event)">
@@ -1432,7 +1403,7 @@
 
       <!-- SEKME 4: YORUM MODERASYONU -->
       <div id="tab-modcomments" class="admin-tab-content">
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">Ziyaretçilerin bıraktığı yorumları buradan kontrol edebilir ve silebilirsiniz:</p>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">Ziyaretçilerin bıraktığı yorumları buradan silebilirsiniz:</p>
         <div id="adminCommentsModList" style="display: flex; flex-direction: column; gap: 8px;"></div>
       </div>
 
@@ -1448,7 +1419,7 @@
         </div>
       </div>
 
-      <!-- SEKME 6: ENTEGRASYON & GÜVENLİK -->
+      <!-- SEKME 6: GÜVENLİK & YEDEK -->
       <div id="tab-integrations" class="admin-tab-content">
         <h4 style="margin-bottom: 10px; color: var(--accent);">🔐 Admin Şifresini Değiştir</h4>
         <div class="form-group">
@@ -1456,16 +1427,8 @@
         </div>
         <button class="btn btn-secondary" style="margin-bottom: 24px;" onclick="changeAdminPassword()">Şifreyi Güncelle</button>
 
-        <h4 style="margin-bottom: 10px; color: var(--accent);">⚙️ Firebase Canlı Bağlantı Bilgisi</h4>
-        <p style="font-size: 0.85rem; color: var(--success); margin-bottom: 12px;">✓ Firebase bağlantısı kod içerisine başarıyla sabitlendi.</p>
-        <div class="form-group">
-          <label>Database URL</label>
-          <input type="text" id="adminFbUrl" class="form-ctrl" value="https://oyunlar-5174d-default-rtdb.firebaseio.com" readonly style="opacity: 0.8;">
-        </div>
-        <div class="form-group">
-          <label>API Key</label>
-          <input type="text" id="adminFbKey" class="form-ctrl" value="AIzaSyA3xPvDsLGextoVapBJS5VH9AyQrCg7uzM" readonly style="opacity: 0.8;">
-        </div>
+        <h4 style="margin-bottom: 10px; color: var(--accent);">⚙️ Canlı Durum</h4>
+        <p style="font-size: 0.85rem; color: var(--success); margin-bottom: 16px;">✓ IndexedDB yerel depolama ve Firebase senkronizasyonu aktif.</p>
 
         <h4 style="margin-bottom: 10px; color: var(--accent);">📦 JSON Yedekten Geri Yükle</h4>
         <input type="file" id="restoreJsonFile" accept=".json" style="margin-bottom: 10px;">
@@ -1476,37 +1439,103 @@
   </div>
 
   <script>
-    // --- GÜVENLİK & YÖNETİM ---
-    let adminSecretKey = localStorage.getItem("cinar_admin_pass") || "megula2026";
+    // ==========================================
+    // INDEXEDDB MODÜLÜ (SINIRSIZ YEREL DEPOLAMA)
+    // ==========================================
+    const IDB_NAME = "guzeladam_indexed_db";
+    const IDB_VERSION = 1;
+    const IDB_STORE = "studio_data";
+
+    function openIndexedDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(IDB_STORE)) {
+            db.createObjectStore(IDB_STORE);
+          }
+        };
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function idbGet(key, defaultVal) {
+      try {
+        const db = await openIndexedDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(IDB_STORE, "readonly");
+          const store = tx.objectStore(IDB_STORE);
+          const req = store.get(key);
+          req.onsuccess = () => resolve(req.result !== undefined ? req.result : defaultVal);
+          req.onerror = () => resolve(defaultVal);
+        });
+      } catch (err) {
+        return defaultVal;
+      }
+    }
+
+    async function idbSet(key, val) {
+      try {
+        const db = await openIndexedDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(IDB_STORE, "readwrite");
+          const store = tx.objectStore(IDB_STORE);
+          store.put(val, key);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        });
+      } catch (err) {
+        return false;
+      }
+    }
+
+    async function idbClear() {
+      try {
+        const db = await openIndexedDB();
+        const tx = db.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).clear();
+      } catch (err) {}
+    }
+
+    // ==========================================
+    // UYGULAMA DEĞİŞKENLERİ & GÜVENLİK
+    // ==========================================
+    let adminSecretKey = "megula2026";
     let adminClickCount = 0;
     let adminClickTimer = null;
     let particlesEnabled = true;
     let currentUploadedImageData = "";
 
-    // OYUN SÜRESİ VE ÇALIŞTIRICI
     let activeGamePlayId = null;
     let runnerInterval = null;
     let runnerSeconds = 0;
     let activeCommentGameId = null;
 
-    // VERİ HAVUZU
-    let gamesList = JSON.parse(localStorage.getItem("guzeladam_games_v1")) || [];
-    let commentsList = JSON.parse(localStorage.getItem("guzeladam_comments_v1")) || [];
-    let userLikedGameIds = JSON.parse(localStorage.getItem("guzeladam_liked_ids")) || [];
-    let statsData = JSON.parse(localStorage.getItem("guzeladam_stats_v1")) || {
-      totalCopies: 0
-    };
-
-    let announcementState = JSON.parse(localStorage.getItem("guzeladam_banner_v1")) || {
-      active: true,
-      text: "🎮 guzeladam Resmi Oyun & Kod Dünyasına Hoş Geldiniz!"
-    };
+    let gamesList = [];
+    let commentsList = [];
+    let userLikedGameIds = [];
+    let statsData = { totalCopies: 0 };
+    let announcementState = { active: true, text: "🎮 guzeladam Resmi Oyun & Kod Dünyasına Hoş Geldiniz!" };
 
     let selectedCategory = "all";
     let firebaseDb = null;
+    let onlineUsersCount = 1;
+    const clientSessionId = "sess_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now();
 
-    // --- UYGULAMA BAŞLANGICI ---
-    function initApp() {
+    // ==========================================
+    // UYGULAMA BAŞLATMA (ASYNC INDEXEDDB)
+    // ==========================================
+    async function initApp() {
+      // IndexedDB'den verileri yükle
+      gamesList = await idbGet("games", []);
+      commentsList = await idbGet("comments", []);
+      userLikedGameIds = await idbGet("liked_ids", []);
+      statsData = await idbGet("stats", { totalCopies: 0 });
+      announcementState = await idbGet("banner", announcementState);
+      const savedPass = await idbGet("admin_pass", "megula2026");
+      adminSecretKey = savedPass;
+
       applySavedTheme();
       renderAnnouncement();
       filterGamesList();
@@ -1518,7 +1547,98 @@
       handleRouting();
     }
 
-    // --- SAYFA YÖNLENDİRME ---
+    // ==========================================
+    // FIREBASE BAĞLANTISI & CANLI ONLINE TAKİBİ
+    // ==========================================
+    function initFirebaseConnection() {
+      const url = "https://oyunlar-5174d-default-rtdb.firebaseio.com";
+      const key = "AIzaSyA3xPvDsLGextoVapBJS5VH9AyQrCg7uzM";
+
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp({ apiKey: key, databaseURL: url });
+        }
+        firebaseDb = firebase.database().ref();
+
+        // 1. CANLI ONLINE KULLANICI SAYACI (PRESENCE MOTORU)
+        const presenceListRef = firebase.database().ref("online_users");
+        const myPresenceRef = presenceListRef.child(clientSessionId);
+        const amOnlineRef = firebase.database().ref(".info/connected");
+
+        amOnlineRef.on("value", (snapshot) => {
+          if (snapshot.val() === true) {
+            myPresenceRef.onDisconnect().remove();
+            myPresenceRef.set({
+              online: true,
+              lastSeen: firebase.database.ServerValue.TIMESTAMP
+            });
+          }
+        });
+
+        presenceListRef.on("value", (snapshot) => {
+          onlineUsersCount = snapshot.numChildren() || 1;
+          const metricElem = document.getElementById("metricOnlineUsers");
+          if (metricElem) metricElem.innerText = onlineUsersCount;
+          const badgeElem = document.getElementById("adminLiveOnlineBadge");
+          if (badgeElem) badgeElem.innerText = "🟢 " + onlineUsersCount + " Canlı";
+        });
+
+        // 2. CANLI VERİ DİNLEME (OYUNLAR, DUYURULAR, YORUMLAR)
+        firebaseDb.child("guzeladam_hub").on("value", (snapshot) => {
+          const val = snapshot.val();
+          if (val) {
+            if (val.games) {
+              gamesList = val.games;
+              idbSet("games", gamesList);
+            }
+            if (val.comments) {
+              commentsList = val.comments;
+              idbSet("comments", commentsList);
+            }
+            if (val.stats) {
+              statsData = val.stats;
+              idbSet("stats", statsData);
+            }
+            if (val.banner) {
+              announcementState = val.banner;
+              idbSet("banner", announcementState);
+            }
+            filterGamesList();
+            renderCodeList(gamesList);
+            renderAnnouncement();
+            updateDashboardStats();
+          }
+        });
+      } catch (e) {
+        console.error("Firebase senkronizasyon hatası:", e);
+      }
+    }
+
+    // ==========================================
+    // PERSIST (INDEXEDDB + FIREBASE)
+    // ==========================================
+    async function persistAll() {
+      // 1. Sınırsız IndexedDB'ye yaz
+      await idbSet("games", gamesList);
+      await idbSet("comments", commentsList);
+      await idbSet("stats", statsData);
+      await idbSet("banner", announcementState);
+      await idbSet("liked_ids", userLikedGameIds);
+
+      // 2. Firebase Bulutuna yaz
+      if (firebaseDb) {
+        firebaseDb.child("guzeladam_hub").set({
+          games: gamesList,
+          comments: commentsList,
+          stats: statsData,
+          banner: announcementState
+        }).catch(err => console.error("Firebase yazma hatası:", err));
+      }
+    }
+
+    // ==========================================
+    // SAYFA YÖNLENDİRME
+    // ==========================================
     function navigateTo(sectionId) {
       window.location.hash = sectionId;
     }
@@ -1546,7 +1666,6 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // --- KATEGORİ VE SIRALAMA FİLTRESİ ---
     function setCategoryFilter(cat, btnElem) {
       selectedCategory = cat;
       document.querySelectorAll(".cat-pill").forEach(p => p.classList.remove("active"));
@@ -1559,7 +1678,7 @@
       const sort = document.getElementById("gameSortSelect") ? document.getElementById("gameSortSelect").value : "newest";
 
       let filtered = gamesList.filter(g => {
-        const matchesQuery = g.title.toLowerCase().includes(q) || g.desc.toLowerCase().includes(q);
+        const matchesQuery = (g.title && g.title.toLowerCase().includes(q)) || (g.desc && g.desc.toLowerCase().includes(q));
         const matchesCat = (selectedCategory === "all") || (g.category === selectedCategory);
         return matchesQuery && matchesCat;
       });
@@ -1575,7 +1694,6 @@
       renderGames(filtered);
     }
 
-    // --- OYUNLARI LİSTELEME ---
     function renderGames(list) {
       const container = document.getElementById("gamesCardsContainer");
       container.innerHTML = "";
@@ -1630,7 +1748,6 @@
       });
     }
 
-    // --- BEĞENİ SİSTEMİ ---
     function toggleLikeGame(gameId) {
       const game = gamesList.find(g => g.id === gameId);
       if (!game) return;
@@ -1645,13 +1762,11 @@
         game.likes += 1;
       }
 
-      localStorage.setItem("guzeladam_liked_ids", JSON.stringify(userLikedGameIds));
       persistAll();
       filterGamesList();
       updateDashboardStats();
     }
 
-    // --- YORUM SİSTEMİ ---
     function openCommentsModal(gameId) {
       activeCommentGameId = gameId;
       const game = gamesList.find(g => g.id === gameId);
@@ -1716,7 +1831,6 @@
       document.getElementById("commentTextInput").value = "";
     }
 
-    // --- KAYNAK KODLAR LİSTESİ ---
     function renderCodeList(list) {
       const container = document.getElementById("codeCardsContainer");
       container.innerHTML = "";
@@ -1760,7 +1874,6 @@
       });
     }
 
-    // --- PRO OYUN RUNNER HUD ---
     function playGameDirectly(gameId) {
       const target = gamesList.find(g => g.id === gameId);
       if (!target) return;
@@ -1789,7 +1902,6 @@
       frameDoc.write(target.code);
       frameDoc.close();
 
-      // Süre sayacı
       runnerSeconds = 0;
       clearInterval(runnerInterval);
       runnerInterval = setInterval(() => {
@@ -1824,7 +1936,9 @@
       activeGamePlayId = null;
     }
 
-    // --- GİZLİ TETİKLEYİCİ (SAĞ KENARDA 3 TIK) ---
+    // ==========================================
+    // GİZLİ ADMİN TETİKLEYİCİSİ (3 DOKUNUŞ)
+    // ==========================================
     const secretTrigger = document.getElementById("hiddenAdminTrigger");
     secretTrigger.addEventListener("click", () => {
       adminClickCount++;
@@ -1876,7 +1990,6 @@
       btnElem.classList.add("active");
     }
 
-    // --- ANALİTİK GÜNCELLEME ---
     function updateDashboardStats() {
       const totalGames = gamesList.length;
       let totalPlays = 0;
@@ -1894,6 +2007,7 @@
       });
 
       if (document.getElementById("metricTotalGames")) {
+        document.getElementById("metricOnlineUsers").innerText = onlineUsersCount;
         document.getElementById("metricTotalGames").innerText = totalGames;
         document.getElementById("metricTotalPlays").innerText = totalPlays;
         document.getElementById("metricTotalLikes").innerText = totalLikes;
@@ -1902,7 +2016,9 @@
       }
     }
 
-    // --- GÖRSEL İŞLEMLERİ ---
+    // ==========================================
+    // OTOMATİK GÖRSEL SIKIŞTIRMA (CANVAS)
+    // ==========================================
     function handleImageUrlInput(url) {
       currentUploadedImageData = url.trim();
       updateImagePreview(currentUploadedImageData);
@@ -1912,12 +2028,25 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      document.getElementById("selectedFileName").innerText = file.name;
+      document.getElementById("selectedFileName").innerText = file.name + " (Sıkıştırılıyor...)";
       const reader = new FileReader();
       reader.onload = function(evt) {
-        currentUploadedImageData = evt.target.result;
-        document.getElementById("adminNewGameImgUrl").value = "";
-        updateImagePreview(currentUploadedImageData);
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement("canvas");
+          const maxW = 420;
+          const scale = maxW / img.width;
+          canvas.width = (scale < 1) ? maxW : img.width;
+          canvas.height = (scale < 1) ? (img.height * scale) : img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          currentUploadedImageData = canvas.toDataURL("image/jpeg", 0.65);
+          document.getElementById("adminNewGameImgUrl").value = "";
+          document.getElementById("selectedFileName").innerText = file.name + " (Hazır ✓)";
+          updateImagePreview(currentUploadedImageData);
+        };
+        img.src = evt.target.result;
       };
       reader.readAsDataURL(file);
     }
@@ -1934,7 +2063,6 @@
       }
     }
 
-    // --- SANDBOX CANLI ÖNİZLEME ---
     function previewGameInSandbox() {
       const code = document.getElementById("adminNewGameCode").value.trim();
       const iframe = document.getElementById("adminPreviewSandboxFrame");
@@ -1949,7 +2077,6 @@
       doc.close();
     }
 
-    // --- OYUN KAYDETME ---
     function adminSaveGame() {
       const title = document.getElementById("adminNewGameTitle").value.trim();
       const cat = document.getElementById("adminNewGameCategory").value;
@@ -1980,7 +2107,6 @@
       renderAdminManageList();
       updateDashboardStats();
 
-      // Formu temizle
       document.getElementById("adminNewGameTitle").value = "";
       document.getElementById("adminNewGameDesc").value = "";
       document.getElementById("adminNewGameCode").value = "";
@@ -1990,10 +2116,9 @@
       currentUploadedImageData = "";
       updateImagePreview("");
 
-      alert("🎉 Oyun başarıyla yayınlandı!");
+      alert("🎉 Oyun IndexedDB ve Firebase'e başarıyla kaydedildi!");
     }
 
-    // --- MEVCUT OYUNLARI YÖNET ---
     function renderAdminManageList() {
       const listContainer = document.getElementById("adminManageList");
       listContainer.innerHTML = "";
@@ -2029,7 +2154,6 @@
       }
     }
 
-    // --- YORUM MODERASYONU ---
     function renderAdminCommentsMod() {
       const container = document.getElementById("adminCommentsModList");
       container.innerHTML = "";
@@ -2064,20 +2188,18 @@
       if (activeCommentGameId) renderCommentsList();
     }
 
-    // --- ADMİN ŞİFRE GÜNCELLEME ---
-    function changeAdminPassword() {
+    async function changeAdminPassword() {
       const newPass = document.getElementById("newAdminPasswordInput").value.trim();
       if (!newPass || newPass.length < 4) {
         alert("Şifre en az 4 karakter olmalıdır!");
         return;
       }
       adminSecretKey = newPass;
-      localStorage.setItem("cinar_admin_pass", newPass);
+      await idbSet("admin_pass", newPass);
       document.getElementById("newAdminPasswordInput").value = "";
-      alert("✓ Admin şifreniz başarıyla güncellendi! Yeni şifreniz: " + newPass);
+      alert("✓ Admin şifreniz güncellendi! Yeni şifreniz: " + newPass);
     }
 
-    // --- DUYURU YÖNETİMİ ---
     function renderAnnouncement() {
       const bar = document.getElementById("globalAnnouncementBar");
       const content = document.getElementById("announcementContent");
@@ -2100,14 +2222,13 @@
       alert(status ? "Duyuru açıldı!" : "Duyuru kapatıldı.");
     }
 
-    // --- YEDEKLEME & GERİ YÜKLEME ---
     function exportDataBackup() {
       const backupData = {
         games: gamesList,
         comments: commentsList,
         stats: statsData,
         banner: announcementState,
-        version: "5.0"
+        version: "6.0"
       };
       const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -2126,15 +2247,15 @@
         return;
       }
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
         try {
           const data = JSON.parse(e.target.result);
           if (data.games) gamesList = data.games;
           if (data.comments) commentsList = data.comments;
           if (data.stats) statsData = data.stats;
           if (data.banner) announcementState = data.banner;
-          persistAll();
-          alert("✓ Yedek başarıyla geri yüklendi! Sayfa yenileniyor...");
+          await persistAll();
+          alert("✓ Yedek IndexedDB ve Firebase'e yüklendi! Sayfa yenileniyor...");
           location.reload();
         } catch(err) {
           alert("Geçersiz yedek dosyası!");
@@ -2143,74 +2264,26 @@
       reader.readAsText(file);
     }
 
-    // --- AYARLAR & TEMA ---
-    function applySavedTheme() {
-      const savedTheme = localStorage.getItem("cinar_theme") || "dark";
+    async function applySavedTheme() {
+      const savedTheme = await idbGet("theme", "dark");
       document.documentElement.setAttribute("data-theme", savedTheme);
-      document.getElementById("themeToggleCheckbox").checked = (savedTheme === "light");
+      const toggle = document.getElementById("themeToggleCheckbox");
+      if (toggle) toggle.checked = (savedTheme === "light");
     }
 
-    function toggleSiteTheme(isLight) {
+    async function toggleSiteTheme(isLight) {
       const theme = isLight ? "light" : "dark";
       document.documentElement.setAttribute("data-theme", theme);
-      localStorage.setItem("cinar_theme", theme);
+      await idbSet("theme", theme);
     }
 
-    function resetLocalData() {
-      if (confirm("Tüm oyunlar, yorumlar ve ayarlar sıfırlansın mı?")) {
-        localStorage.clear();
+    async function resetLocalData() {
+      if (confirm("Tüm IndexedDB verileri sıfırlansın mı?")) {
+        await idbClear();
         location.reload();
       }
     }
 
-    // --- VERİ SAKLAMA & CANLI FIREBASE SENKRONİZASYONU ---
-    function persistAll() {
-      localStorage.setItem("guzeladam_games_v1", JSON.stringify(gamesList));
-      localStorage.setItem("guzeladam_comments_v1", JSON.stringify(commentsList));
-      localStorage.setItem("guzeladam_stats_v1", JSON.stringify(statsData));
-      localStorage.setItem("guzeladam_banner_v1", JSON.stringify(announcementState));
-
-      if (firebaseDb) {
-        firebaseDb.child("guzeladam_hub").set({
-          games: gamesList,
-          comments: commentsList,
-          stats: statsData,
-          banner: announcementState
-        });
-      }
-    }
-
-    // KODA SABİTLENEN FIREBASE BAĞLANTISI (CANLI AKTİF)
-    function initFirebaseConnection() {
-      const url = "https://oyunlar-5174d-default-rtdb.firebaseio.com";
-      const key = "AIzaSyA3xPvDsLGextoVapBJS5VH9AyQrCg7uzM";
-
-      try {
-        if (!firebase.apps.length) {
-          firebase.initializeApp({ apiKey: key, databaseURL: url });
-        }
-        firebaseDb = firebase.database().ref();
-
-        // CANLI VERİ DİNLEME (TÜM TAKİPÇİLER VE ADMİN İÇİN EŞ ZAMANLI)
-        firebaseDb.child("guzeladam_hub").on("value", snapshot => {
-          const val = snapshot.val();
-          if (val) {
-            if (val.games) gamesList = val.games;
-            if (val.comments) commentsList = val.comments;
-            if (val.stats) statsData = val.stats;
-            if (val.banner) announcementState = val.banner;
-            filterGamesList();
-            renderCodeList(gamesList);
-            renderAnnouncement();
-            updateDashboardStats();
-          }
-        });
-      } catch (e) {
-        console.error("Firebase senkronizasyon hatası:", e);
-      }
-    }
-
-    // --- PİKSEL CANVAS ---
     function togglePixelParticles(enable) {
       particlesEnabled = enable;
       const cvs = document.getElementById("pixelBackgroundCanvas");
@@ -2270,7 +2343,9 @@
         .replace(/'/g, "&#039;");
     }
 
+    // Uygulamayı Başlat
     initApp();
   </script>
 </body>
 </html>
+
