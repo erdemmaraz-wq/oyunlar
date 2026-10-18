@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>guzeladam — Resmi Oyun Stüdyosu & Açık Kaynak Merkezi</title>
   
-  <!-- Firebase Kütüphaneleri -->
+  <!-- Firebase SDK Kütüphaneleri -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -67,7 +67,7 @@
       transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* PİKSEL ARKA PLAN VE RETRO GRID */
+    /* PİKSEL CANVAS & RETRO GRID */
     #pixelBackgroundCanvas {
       position: fixed;
       top: 0;
@@ -108,7 +108,7 @@
       background: var(--primary);
     }
 
-    /* CANLI DUYURU ÇUBUĞU */
+    /* DUYURU BANDI */
     #globalAnnouncementBar {
       display: none;
       position: sticky;
@@ -124,7 +124,7 @@
       box-shadow: 0 4px 18px var(--primary-glow);
     }
 
-    /* UYGULAMA DÜZENİ */
+    /* SAYFA YAPISI */
     .app-layout {
       position: relative;
       z-index: 10;
@@ -133,7 +133,7 @@
       min-height: 100vh;
     }
 
-    /* SOL MENÜ (SIDEBAR) */
+    /* SOL MENÜ */
     .sidebar {
       width: 260px;
       background: var(--bg-surface);
@@ -224,7 +224,7 @@
       font-size: 1.25rem;
     }
 
-    /* ANA İÇERİK */
+    /* İÇERİK ALANI */
     .content-area {
       flex: 1;
       display: flex;
@@ -267,7 +267,7 @@
       font-size: 1rem;
     }
 
-    /* FİLTRELEME & KATEGORİ */
+    /* FİLTRELER */
     .filter-controls-wrap {
       display: flex;
       flex-direction: column;
@@ -542,7 +542,7 @@
       line-height: 1.6;
     }
 
-    /* KAYNAK KODLAR GÖRÜNÜMÜ */
+    /* KOD DEPOSU */
     .code-list-container {
       display: flex;
       flex-direction: column;
@@ -582,7 +582,7 @@
       word-break: break-all;
     }
 
-    /* YAPIMCILAR */
+    /* YAPIMCI KARTI */
     .creator-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
@@ -731,7 +731,7 @@
       margin-bottom: 10px;
     }
 
-    /* PRO OYUN ÇALIŞTIRICI HUD */
+    /* PRO OYUN HUD */
     .runner-modal {
       display: none;
       position: fixed;
@@ -791,7 +791,7 @@
       background: #ffffff;
     }
 
-    /* YORUMLAR */
+    /* YORUMLAR MODALI */
     .comments-drawer-modal {
       display: none;
       position: fixed;
@@ -1173,7 +1173,7 @@
         </div>
       </section>
 
-      <!-- 3. BÖLÜM: YAPIMCILAR (YOUTUBE LİNKİ GÜNCELLENDİ) -->
+      <!-- 3. BÖLÜM: YAPIMCILAR -->
       <section id="view-creator" class="page-section">
         <div class="creator-card">
           <div class="creator-avatar">👑</div>
@@ -1184,7 +1184,7 @@
           </p>
           <a href="https://www.youtube.com/@erdemmaraz5246" target="_blank" rel="noopener noreferrer" class="yt-btn">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
             </svg>
             YouTube: @guzeladam
           </a>
@@ -1275,7 +1275,7 @@
     </p>
   </footer>
 
-  <!-- PRO OYUN ÇALIŞTIRICI HUD -->
+  <!-- PRO OYUN HUD -->
   <div class="runner-modal" id="gameRunnerModal">
     <div class="runner-hud-bar">
       <div class="runner-hud-left">
@@ -1456,16 +1456,16 @@
         </div>
         <button class="btn btn-secondary" style="margin-bottom: 24px;" onclick="changeAdminPassword()">Şifreyi Güncelle</button>
 
-        <h4 style="margin-bottom: 10px; color: var(--accent);">⚙️ Firebase Canlı Bağlantı</h4>
+        <h4 style="margin-bottom: 10px; color: var(--accent);">⚙️ Firebase Canlı Bağlantı Bilgisi</h4>
+        <p style="font-size: 0.85rem; color: var(--success); margin-bottom: 12px;">✓ Firebase bağlantısı kod içerisine başarıyla sabitlendi.</p>
         <div class="form-group">
           <label>Database URL</label>
-          <input type="text" id="adminFbUrl" class="form-ctrl" placeholder="https://....firebaseio.com">
+          <input type="text" id="adminFbUrl" class="form-ctrl" value="https://oyunlar-5174d-default-rtdb.firebaseio.com" readonly style="opacity: 0.8;">
         </div>
         <div class="form-group">
           <label>API Key</label>
-          <input type="text" id="adminFbKey" class="form-ctrl" placeholder="AIzaSy...">
+          <input type="text" id="adminFbKey" class="form-ctrl" value="AIzaSyA3xPvDsLGextoVapBJS5VH9AyQrCg7uzM" readonly style="opacity: 0.8;">
         </div>
-        <button class="btn btn-secondary" style="width: 100%; margin-bottom: 24px;" onclick="adminSaveFirebase()">Firebase'i Kaydet</button>
 
         <h4 style="margin-bottom: 10px; color: var(--accent);">📦 JSON Yedekten Geri Yükle</h4>
         <input type="file" id="restoreJsonFile" accept=".json" style="margin-bottom: 10px;">
@@ -2163,7 +2163,7 @@
       }
     }
 
-    // --- VERİ SAKLAMA & FIREBASE ---
+    // --- VERİ SAKLAMA & CANLI FIREBASE SENKRONİZASYONU ---
     function persistAll() {
       localStorage.setItem("guzeladam_games_v1", JSON.stringify(gamesList));
       localStorage.setItem("guzeladam_comments_v1", JSON.stringify(commentsList));
@@ -2180,44 +2180,33 @@
       }
     }
 
-    function adminSaveFirebase() {
-      const url = document.getElementById("adminFbUrl").value.trim();
-      const key = document.getElementById("adminFbKey").value.trim();
-      if (!url || !key) {
-        alert("Lütfen bilgileri eksiksiz girin!");
-        return;
-      }
-      localStorage.setItem("cinar_fb_url", url);
-      localStorage.setItem("cinar_fb_key", key);
-      alert("Firebase bilgileri kaydedildi! Sayfa yenileniyor...");
-      location.reload();
-    }
-
+    // KODA SABİTLENEN FIREBASE BAĞLANTISI (CANLI AKTİF)
     function initFirebaseConnection() {
-      const url = localStorage.getItem("cinar_fb_url");
-      const key = localStorage.getItem("cinar_fb_key");
+      const url = "https://oyunlar-5174d-default-rtdb.firebaseio.com";
+      const key = "AIzaSyA3xPvDsLGextoVapBJS5VH9AyQrCg7uzM";
 
-      if (url && key) {
-        try {
+      try {
+        if (!firebase.apps.length) {
           firebase.initializeApp({ apiKey: key, databaseURL: url });
-          firebaseDb = firebase.database().ref();
-
-          firebaseDb.child("guzeladam_hub").on("value", snapshot => {
-            const val = snapshot.val();
-            if (val) {
-              if (val.games) gamesList = val.games;
-              if (val.comments) commentsList = val.comments;
-              if (val.stats) statsData = val.stats;
-              if (val.banner) announcementState = val.banner;
-              filterGamesList();
-              renderCodeList(gamesList);
-              renderAnnouncement();
-              updateDashboardStats();
-            }
-          });
-        } catch (e) {
-          console.error("Firebase senkronizasyon hatası:", e);
         }
+        firebaseDb = firebase.database().ref();
+
+        // CANLI VERİ DİNLEME (TÜM TAKİPÇİLER VE ADMİN İÇİN EŞ ZAMANLI)
+        firebaseDb.child("guzeladam_hub").on("value", snapshot => {
+          const val = snapshot.val();
+          if (val) {
+            if (val.games) gamesList = val.games;
+            if (val.comments) commentsList = val.comments;
+            if (val.stats) statsData = val.stats;
+            if (val.banner) announcementState = val.banner;
+            filterGamesList();
+            renderCodeList(gamesList);
+            renderAnnouncement();
+            updateDashboardStats();
+          }
+        });
+      } catch (e) {
+        console.error("Firebase senkronizasyon hatası:", e);
       }
     }
 
