@@ -3292,6 +3292,46 @@
     }
   });
 </script>
+n<!-- KANKA ACİL DURUM TEK TIKLA BAKIM KAPATMA YAMASI -->
+<script>
+  // Sayfa yüklendiğinde bakım ekranının içine otomatik olarak herkesin basabileceği dev bir buton ekler
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      const maintBox = document.querySelector("#maintenanceScreenOverlay > div");
+      if (maintBox && !document.getElementById("emergencyEndBtn")) {
+        const btn = document.createElement("button");
+        btn.id = "emergencyEndBtn";
+        btn.className = "btn btn-play-run";
+        btn.style.cssText = "width: 100%; margin-top: 20px; padding: 14px; font-size: 1rem; background: linear-gradient(135deg, #2ed573, #10ac84); color: #000; font-weight: 900; cursor: pointer; border-radius: 12px; border: none;";
+        btn.innerText = "🚀 Bakım Modunu Hemen Sonlandır (Siteyi Aç)";
+        
+        btn.onclick = function() {
+          // 1. Bakım modunu kapat
+          isMaintenanceActive = false;
+          
+          // 2. Firebase ve IndexedDB'ye kaydet
+          if (typeof persistAll === 'function') {
+            persistAll();
+          } else {
+            // Yedek Firebase güncellemesi
+            try {
+              firebase.database().ref("guzeladam_hub/maintenance").set(false);
+            } catch(e) {}
+          }
+          
+          // 3. Bakım ekranını gizle ve sayfayı yenile
+          const overlay = document.getElementById("maintenanceScreenOverlay");
+          if (overlay) overlay.style.display = "none";
+          
+          alert("✓ Bakım modu başarıyla sonlandırıldı! Site herkese açıldı.");
+          location.reload();
+        };
+
+        maintBox.appendChild(btn);
+      }
+    }, 400);
+  });
+</script>
 
 </body>
 </html>
