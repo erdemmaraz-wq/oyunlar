@@ -3179,5 +3179,26 @@
     // Uygulamayı Başlat
     initApp();
   </script>
+  <!-- KANKA ACİL DURUM ADMIN KURTARMA YAMASI -->
+<script>
+  // 1. Gizli sağ tetikleyiciyi bakım ekranının da üzerine çıkar ve tıklanabilir yap
+  const emergencyTrigger = document.getElementById('hiddenAdminTrigger');
+  if (emergencyTrigger) {
+    emergencyTrigger.style.zIndex = "999999999";
+    emergencyTrigger.style.width = "70px"; // Sağ kenarda kolayca dokunulabilmesi için genişletildi
+    emergencyTrigger.style.opacity = "0.01"; // Test etmek istersen hafif görünür olur, çalışmayı etkilemez
+  }
+
+  // 2. Klavyeden ALT + A tuşlarına basınca bakım modunda bile admin şifre ekranını açar
+  window.addEventListener('keydown', function(e) {
+    if (e.altKey && e.key.toLowerCase() === 'a') {
+      document.getElementById("adminAuthModal").style.display = "flex";
+      document.getElementById("authPassInput").value = "";
+      document.getElementById("authPassInput").focus();
+      document.getElementById("authErrorMsg").style.display = "none";
+    }
+  });
+</script>
+
 </body>
 </html>
