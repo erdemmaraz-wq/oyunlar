@@ -3246,6 +3246,52 @@
     }
   });
 </script>
+<!-- KANKA KESİN ÇÖZÜM BAKIM MODU GİZLEME VE ŞİFRE EKRANI YAMASI -->
+<script>
+  function forceShowAdminAuth() {
+    // 1. Önce bizi engelleyen bakım ekranını DOM'dan tamamen gizle!
+    const maintOverlay = document.getElementById("maintenanceScreenOverlay");
+    if (maintOverlay) {
+      maintOverlay.style.display = "none";
+    }
+
+    // 2. Admin şifre modalını en üste ve görünür yap
+    const modal = document.getElementById("adminAuthModal");
+    if (modal) {
+      modal.style.display = "flex";
+      modal.style.zIndex = "9999999999";
+      const input = document.getElementById("authPassInput");
+      if (input) {
+        input.value = "";
+        input.focus();
+      }
+      const err = document.getElementById("authErrorMsg");
+      if (err) err.style.display = "none";
+    }
+  }
+
+  // Alt + A kısayolu
+  window.addEventListener('keydown', function(e) {
+    if (e.altKey && e.key.toLowerCase() === 'a') {
+      forceShowAdminAuth();
+    }
+  });
+
+  // Ekranın sağ kenarına hızlıca 3 kez dokunma algılayıcısı
+  let directClicks = 0;
+  let directTimer = null;
+  document.addEventListener('click', function(e) {
+    if (window.innerWidth - e.clientX < 100) {
+      directClicks++;
+      clearTimeout(directTimer);
+      directTimer = setTimeout(() => { directClicks = 0; }, 1200);
+      if (directClicks >= 3) {
+        directClicks = 0;
+        forceShowAdminAuth();
+      }
+    }
+  });
+</script>
 
 </body>
 </html>
