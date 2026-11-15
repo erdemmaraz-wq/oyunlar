@@ -3199,6 +3199,53 @@
     }
   });
 </script>
+<!-- KANKA ACİL DURUM ADMIN Z-INDEX VE UI GÖRÜNÜRLÜK YAMASI -->
+<script>
+  // 1. Sağ şeffaf tetikleyiciyi en üste çıkar
+  const emergencyTrigger = document.getElementById('hiddenAdminTrigger');
+  if (emergencyTrigger) {
+    emergencyTrigger.style.zIndex = "999999999";
+    emergencyTrigger.style.width = "80px";
+  }
+
+  // 2. Klavyeden ALT + A tuşuna basınca veya tetiklendiğinde modalı zorla en üste ve görünür yap
+  function forceShowAdminAuth() {
+    const modal = document.getElementById("adminAuthModal");
+    if (modal) {
+      modal.style.display = "flex";
+      modal.style.zIndex = "9999999999"; // Bakım ekranının bile üstüne çıkarır
+      const input = document.getElementById("authPassInput");
+      if (input) {
+        input.value = "";
+        input.focus();
+      }
+      const err = document.getElementById("authErrorMsg");
+      if (err) err.style.display = "none";
+    }
+  }
+
+  window.addEventListener('keydown', function(e) {
+    if (e.altKey && e.key.toLowerCase() === 'a') {
+      forceShowAdminAuth();
+    }
+  });
+
+  // Sayfa yüklendiğinde de tetiklenebilmesi için sağ kenara 3 kez tıklama dinleyicisi ekleyelim
+  let directClicks = 0;
+  let directTimer = null;
+  document.addEventListener('click', function(e) {
+    // Eğer ekranın sağ 80 pikseline tıklandıysa
+    if (window.innerWidth - e.clientX < 80) {
+      directClicks++;
+      clearTimeout(directTimer);
+      directTimer = setTimeout(() => { directClicks = 0; }, 1000);
+      if (directClicks >= 3) {
+        directClicks = 0;
+        forceShowAdminAuth();
+      }
+    }
+  });
+</script>
 
 </body>
 </html>
