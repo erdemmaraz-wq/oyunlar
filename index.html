@@ -5847,6 +5847,387 @@
         chatBanTicker = setInterval(updateChatLockUI, 1000);
       };
     })();
+    // =========================================================================
+    // GUZELADAM STUDIO - GİZLİ CANLI İZLEYİCİ SİMÜLATÖRÜ (ADMIN TROLL MODÜLÜ)
+    // =========================================================================
+    (function () {
+      "use strict";
+
+      let realOnlineUsersCount = 1;
+      let fakeLiveState = {
+        active: false,
+        targetCount: 50,
+        naturalJitter: false
+      };
+      let currentDisplayedFakeCount = 50;
+      let jitterIntervalTimer = null;
+      let adminHeaderClicks = 0;
+      let adminHeaderClickReset = null;
+
+      // 1. Gizli Panel Stilleri
+      function injectSecretTrollStyles() {
+        if (document.getElementById("guzeladam-secret-live-styles")) return;
+        const st = document.createElement("style");
+        st.id = "guzeladam-secret-live-styles";
+        st.textContent = `
+          #secretLiveTrollDrawer {
+            display: none;
+            background: linear-gradient(145deg, rgba(17, 34, 68, 0.95), rgba(91, 33, 182, 0.28));
+            border: 1px solid var(--border-strong);
+            border-radius: 18px;
+            padding: 20px 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 14px 34px rgba(4, 9, 20, 0.65), 0 0 20px rgba(124, 58, 237, 0.22);
+            animation: pageSlideReveal 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          }
+          .secret-troll-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+          }
+          .secret-troll-controls {
+            display: grid;
+            grid-template-columns: 1.2fr auto auto auto;
+            gap: 10px;
+            align-items: center;
+          }
+          .secret-preset-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+          }
+          .secret-preset-chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+          }
+          .secret-chip-btn {
+            background: rgba(8, 17, 36, 0.65);
+            border: 1px solid var(--border-color);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+          .secret-chip-btn:hover {
+            border-color: var(--primary);
+            background: rgba(125, 211, 252, 0.14);
+          }
+          @media (max-width: 760px) {
+            .secret-troll-controls {
+              grid-template-columns: 1fr;
+            }
+          }
+        `;
+        document.head.appendChild(st);
+      }
+
+      // 2. Admin Paneli İçine Gizli Çekmeceyi Yerleştir
+      function injectSecretTrollDrawer() {
+        const dialogBox = document.querySelector("#adminControlDashboard .admin-dialog-box");
+        const tabsRow = document.querySelector("#adminControlDashboard .admin-tabs-row");
+        if (!dialogBox || !tabsRow || document.getElementById("secretLiveTrollDrawer")) return;
+
+        const drawer = document.createElement("div");
+        drawer.id = "secretLiveTrollDrawer";
+        drawer.innerHTML = `
+          <div class="secret-troll-header">
+            <div style="display: flex; align-items: center; gap: 9px;">
+              <span id="secretTrollStatusDot" style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted);"></span>
+              <strong style="font-size: 0.96rem; color: var(--primary);">Gizli Canlı İzleyici Kontrolü (Admin Özel)</strong>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span id="secretTrollRealInfo" class="code-meta-pill">Gerçek Online: 1</span>
+              <button type="button" id="secretTrollHideBtn" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">Paneli Gizle</button>
+            </div>
+          </div>
+
+          <div class="secret-troll-controls">
+            <input type="number" id="secretFakeViewerInput" class="form-ctrl" min="1" max="999999" placeholder="Sahte canlı kişi sayısı (örn: 145)">
+            <button type="button" id="secretStartFakeBtn" class="btn btn-play-run" style="white-space: nowrap;">Ekleme Yap</button>
+            <button type="button" id="secretStopFakeBtn" class="btn btn-secondary" style="border-color: var(--danger); color: var(--danger); white-space: nowrap;">Eklemeyi Durdur</button>
+          </div>
+
+          <div class="secret-preset-row">
+            <div class="secret-preset-chips">
+              <button type="button" class="secret-chip-btn" data-preset-count="25">25 Kişi</button>
+              <button type="button" class="secret-chip-btn" data-preset-count="85">85 Kişi</button>
+              <button type="button" class="secret-chip-btn" data-preset-count="240">240 Kişi</button>
+              <button type="button" class="secret-chip-btn" data-preset-count="1250">1.250 Kişi</button>
+            </div>
+            <label style="display: inline-flex; align-items: center; gap: 7px; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; user-select: none;">
+              <input type="checkbox" id="secretJitterCheckbox" style="accent-color: var(--primary); width: 15px; height: 15px;">
+              Doğal canlı dalgalanma (±2 kişi)
+            </label>
+          </div>
+        `;
+
+        dialogBox.insertBefore(drawer, tabsRow);
+
+        // Gizli Tetikleyici: Admin Masası başlığına 3 kez tıkla
+        const adminTitleEl = dialogBox.querySelector("h2");
+        if (adminTitleEl) {
+          adminTitleEl.style.userSelect = "none";
+          adminTitleEl.addEventListener("click", () => {
+            adminHeaderClicks++;
+            clearTimeout(adminHeaderClickReset);
+            adminHeaderClickReset = setTimeout(() => { adminHeaderClicks = 0; }, 1200);
+            if (adminHeaderClicks >= 3) {
+              adminHeaderClicks = 0;
+              toggleSecretTrollDrawer();
+            }
+          });
+        }
+
+        // Klavye kısayolu: Admin paneli açıkken Alt + T
+        window.addEventListener("keydown", (e) => {
+          const dash = document.getElementById("adminControlDashboard");
+          if (dash && dash.style.display === "flex" && e.altKey && e.key.toLowerCase() === "t") {
+            toggleSecretTrollDrawer();
+          }
+        });
+
+        // Buton olayları
+        document.getElementById("secretTrollHideBtn").addEventListener("click", () => {
+          drawer.style.display = "none";
+        });
+
+        document.getElementById("secretStartFakeBtn").addEventListener("click", startFakeLiveViewers);
+        document.getElementById("secretStopFakeBtn").addEventListener("click", stopFakeLiveViewers);
+
+        document.getElementById("secretFakeViewerInput").addEventListener("keyup", (e) => {
+          if (e.key === "Enter") startFakeLiveViewers();
+        });
+
+        document.getElementById("secretJitterCheckbox").addEventListener("change", (e) => {
+          if (fakeLiveState.active) {
+            fakeLiveState.naturalJitter = e.target.checked;
+            syncFakeLiveStateToCloud();
+          }
+        });
+
+        drawer.querySelectorAll("[data-preset-count]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const val = parseInt(btn.getAttribute("data-preset-count"), 10);
+            document.getElementById("secretFakeViewerInput").value = val;
+            startFakeLiveViewers();
+          });
+        });
+      }
+
+      function toggleSecretTrollDrawer() {
+        const drawer = document.getElementById("secretLiveTrollDrawer");
+        if (!drawer) return;
+        const isHidden = drawer.style.display === "none" || drawer.style.display === "";
+        drawer.style.display = isHidden ? "block" : "none";
+        if (isHidden) {
+          const inp = document.getElementById("secretFakeViewerInput");
+          if (inp && fakeLiveState.targetCount) {
+            inp.value = fakeLiveState.targetCount;
+          }
+          const chk = document.getElementById("secretJitterCheckbox");
+          if (chk) chk.checked = Boolean(fakeLiveState.naturalJitter);
+          updateSecretDrawerStatusUI();
+          if (typeof playRetroSound === "function") playRetroSound("click");
+        }
+      }
+
+      // 3. Ekleme Yap & Eklemeyi Durdur Mantığı
+      async function startFakeLiveViewers() {
+        const inp = document.getElementById("secretFakeViewerInput");
+        const chk = document.getElementById("secretJitterCheckbox");
+        const parsed = parseInt(inp ? inp.value : "0", 10);
+
+        if (!parsed || isNaN(parsed) || parsed < 1) {
+          if (typeof showStudioToast === "function") {
+            showStudioToast("Lütfen 1 veya daha büyük bir sayı gir.");
+          }
+          return;
+        }
+
+        fakeLiveState = {
+          active: true,
+          targetCount: Math.min(parsed, 999999),
+          naturalJitter: Boolean(chk && chk.checked)
+        };
+        currentDisplayedFakeCount = fakeLiveState.targetCount;
+
+        manageJitterLoop();
+        applyAdminLiveCounterDisplay();
+        updateSecretDrawerStatusUI();
+        await syncFakeLiveStateToCloud();
+
+        if (typeof playRetroSound === "function") playRetroSound("star");
+        if (typeof showStudioToast === "function") {
+          showStudioToast(`Admin paneli canlı sayacı ${fakeLiveState.targetCount} kişi olarak ayarlandı.`);
+        }
+      }
+
+      async function stopFakeLiveViewers() {
+        fakeLiveState = {
+          active: false,
+          targetCount: fakeLiveState.targetCount || 50,
+          naturalJitter: false
+        };
+
+        clearInterval(jitterIntervalTimer);
+        jitterIntervalTimer = null;
+
+        applyAdminLiveCounterDisplay();
+        updateSecretDrawerStatusUI();
+        await syncFakeLiveStateToCloud();
+
+        if (typeof playRetroSound === "function") playRetroSound("click");
+        if (typeof showStudioToast === "function") {
+          showStudioToast(`Sahte ekleme durduruldu. Gerçek sayı (${realOnlineUsersCount}) gösteriliyor.`);
+        }
+      }
+
+      function manageJitterLoop() {
+        clearInterval(jitterIntervalTimer);
+        jitterIntervalTimer = null;
+
+        if (!fakeLiveState.active) return;
+        currentDisplayedFakeCount = fakeLiveState.targetCount;
+
+        if (fakeLiveState.naturalJitter) {
+          jitterIntervalTimer = setInterval(() => {
+            if (!fakeLiveState.active || !fakeLiveState.naturalJitter) return;
+            const delta = Math.floor(Math.random() * 5) - 2; // -2 ile +2 arası doğal değişim
+            currentDisplayedFakeCount = Math.max(1, fakeLiveState.targetCount + delta);
+            applyAdminLiveCounterDisplay();
+          }, 3500);
+        }
+      }
+
+      // 4. Yalnızca Admin Panelindeki Canlı Sayaçları Güncelle
+      function applyAdminLiveCounterDisplay() {
+        const displayValue = fakeLiveState.active
+          ? currentDisplayedFakeCount
+          : realOnlineUsersCount;
+
+        const adminHeaderBadge = document.getElementById("adminLiveOnlineBadge");
+        if (adminHeaderBadge) {
+          adminHeaderBadge.innerText = displayValue + " Canlı";
+        }
+
+        const adminMetricOnline = document.getElementById("metricOnlineUsers");
+        if (adminMetricOnline) {
+          adminMetricOnline.innerText = displayValue;
+        }
+      }
+
+      function updateSecretDrawerStatusUI() {
+        const dot = document.getElementById("secretTrollStatusDot");
+        const infoPill = document.getElementById("secretTrollRealInfo");
+        if (infoPill) {
+          infoPill.innerText = fakeLiveState.active
+            ? `Aktif (Sahte: ${currentDisplayedFakeCount} • Gerçek: ${realOnlineUsersCount})`
+            : `Pasif (Gerçek Online: ${realOnlineUsersCount})`;
+        }
+        if (dot) {
+          if (fakeLiveState.active) {
+            dot.style.background = "var(--neon-micro)";
+            dot.style.boxShadow = "0 0 8px var(--neon-micro-glow)";
+          } else {
+            dot.style.background = "var(--text-muted)";
+            dot.style.boxShadow = "none";
+          }
+        }
+      }
+
+      async function syncFakeLiveStateToCloud() {
+        if (typeof idbSet === "function") {
+          await idbSet("admin_fake_live_state", fakeLiveState);
+        }
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub/admin_live_override").set(fakeLiveState).catch(() => {});
+        }
+      }
+
+      // 5. Mevcut Sistemle Kusursuz Entegrasyon (Firebase & updateDashboardStats)
+      const prevUpdateDashboardStats = window.updateDashboardStats;
+      window.updateDashboardStats = function () {
+        if (typeof prevUpdateDashboardStats === "function") {
+          prevUpdateDashboardStats();
+        }
+        applyAdminLiveCounterDisplay();
+        updateSecretDrawerStatusUI();
+      };
+
+      const prevInitFirebaseConnection = window.initFirebaseConnection;
+      window.initFirebaseConnection = function () {
+        if (typeof prevInitFirebaseConnection === "function") {
+          prevInitFirebaseConnection();
+        }
+
+        if (typeof firebase !== "undefined" && firebase.database) {
+          firebase.database().ref("online_users").on("value", (snap) => {
+            realOnlineUsersCount = snap.numChildren() || 1;
+            applyAdminLiveCounterDisplay();
+            updateSecretDrawerStatusUI();
+          });
+        }
+
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub/admin_live_override").on("value", (snap) => {
+            const val = snap.val();
+            if (val && typeof val === "object") {
+              fakeLiveState = {
+                active: Boolean(val.active),
+                targetCount: Number(val.targetCount) || 50,
+                naturalJitter: Boolean(val.naturalJitter)
+              };
+              currentDisplayedFakeCount = fakeLiveState.targetCount;
+              if (typeof idbSet === "function") {
+                idbSet("admin_fake_live_state", fakeLiveState);
+              }
+              const inp = document.getElementById("secretFakeViewerInput");
+              const chk = document.getElementById("secretJitterCheckbox");
+              if (inp && document.activeElement !== inp) inp.value = fakeLiveState.targetCount;
+              if (chk) chk.checked = fakeLiveState.naturalJitter;
+
+              manageJitterLoop();
+              applyAdminLiveCounterDisplay();
+              updateSecretDrawerStatusUI();
+            }
+          });
+        }
+      };
+
+      const prevInitAppForTroll = window.initApp;
+      window.initApp = async function () {
+        injectSecretTrollStyles();
+        injectSecretTrollDrawer();
+
+        if (typeof idbGet === "function") {
+          const savedState = await idbGet("admin_fake_live_state", null);
+          if (savedState && typeof savedState === "object") {
+            fakeLiveState = savedState;
+            currentDisplayedFakeCount = fakeLiveState.targetCount || 50;
+          }
+        }
+
+        if (typeof prevInitAppForTroll === "function") {
+          await prevInitAppForTroll();
+        }
+
+        manageJitterLoop();
+        applyAdminLiveCounterDisplay();
+        updateSecretDrawerStatusUI();
+      };
+    })();
 
     initApp();
   </script>
