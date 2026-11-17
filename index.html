@@ -4464,6 +4464,1389 @@
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
     }
+        // =========================================================================
+    // GUZELADAM STUDIO PRO EXTENSION v2.0 (EKLEME MODÜLÜ - ESKİ KODLARI KORUR)
+    // =========================================================================
+    (function () {
+      "use strict";
+
+      const STUDIO_YT_URL = "https://www.youtube.com/@erdemmaraz5246";
+      const CHAT_SPAM_LIMIT = 10;
+      const CHAT_SPAM_WINDOW_MS = 120 * 1000; // 10 mesaj / 2 dakika penceresi
+      const CHAT_PROFANITY_BAN_MS = 10 * 60 * 1000; // 10 dakika sohbet banı
+
+      // Eklenti Durum Değişkenleri
+      let userRanksMap = {};          // { "tag_XXXXX" | "nick_xxx": { tag, nick, rank, badgeType, updatedAt } }
+      let playerLeaderboardMap = {};  // { "XXXXX": { tag, nick, plays, xp, lastPlayed } }
+      let globalChatMessages = [];    // Firebase canlı sohbet listesi
+      let chatBansMap = {};           // Firebase sohbet banları { "XXXXX": { until, reason, nick } }
+      let localChatBanUntil = 0;
+      let chatMessageTimestamps = []; // 10 mesaj spam sayacı
+      let chatReplyTarget = "";
+      let unreadChatCount = 0;
+      let chatBanTicker = null;
+      let spamTicker = null;
+
+      // -----------------------------------------------------------------------
+      // 1. INSANSIZ WEB TASARIM UYUMLU EK STİLLER (DERİN MAVİ / MOR / BEBEK MAVİSİ)
+      // -----------------------------------------------------------------------
+      function injectProExtensionStyles() {
+        if (document.getElementById("guzeladam-pro-ext-styles")) return;
+        const styleEl = document.createElement("style");
+        styleEl.id = "guzeladam-pro-ext-styles";
+        styleEl.textContent = `
+          /* RÜTBE & VIP ROZET SİSTEMİ */
+          .studio-rank-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 9px;
+            border-radius: 99px;
+            font-size: 0.69rem;
+            font-weight: 700;
+            letter-spacing: 0.25px;
+            line-height: 1.35;
+            white-space: nowrap;
+            vertical-align: middle;
+          }
+          .rank-style-yapimci {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.34), rgba(125, 211, 252, 0.24));
+            border: 1px solid #7DD3FC;
+            color: #E0F2FE;
+            box-shadow: 0 0 12px rgba(125, 211, 252, 0.22);
+          }
+          .rank-style-yardimci {
+            background: rgba(91, 33, 182, 0.3);
+            border: 1px solid #A78BFA;
+            color: #EDE9FE;
+          }
+          .rank-style-youtuber {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #F87171;
+            color: #FECACA;
+          }
+          .rank-style-tester {
+            background: rgba(74, 222, 128, 0.14);
+            border: 1px solid rgba(74, 222, 128, 0.55);
+            color: #BBF7D0;
+          }
+          .rank-style-moderator {
+            background: rgba(14, 165, 233, 0.2);
+            border: 1px solid #38BDF8;
+            color: #BAE6FD;
+          }
+          .rank-style-custom {
+            background: rgba(125, 211, 252, 0.14);
+            border: 1px solid rgba(125, 211, 252, 0.45);
+            color: #7DD3FC;
+          }
+          .rank-style-vip {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.26), rgba(251, 191, 36, 0.14));
+            border: 1px solid #FBBF24;
+            color: #FEF3C7;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+          }
+
+          .profile-own-ranks-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+          }
+
+          /* YAPIMCILAR İKİLİ EDİTORYAL VİTRİN */
+          .creators-dual-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 1fr;
+            gap: 24px;
+            max-width: 960px;
+            margin: 28px auto;
+          }
+          .creator-showcase-card {
+            background: linear-gradient(155deg, var(--bg-surface), var(--bg-card) 68%, rgba(91, 33, 182, 0.24));
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 36px 28px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.32s ease, box-shadow 0.32s ease;
+          }
+          .creator-showcase-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--primary);
+            box-shadow: 0 22px 44px rgba(8, 17, 36, 0.72), 0 0 24px rgba(125, 211, 252, 0.18);
+          }
+          .creator-showcase-card.primary-founder {
+            border-color: var(--border-strong);
+          }
+          .creator-avatar-ring {
+            width: 88px;
+            height: 88px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--purple-deep), var(--primary));
+            color: #081124;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            font-size: 1.8rem;
+            font-weight: 900;
+            box-shadow: 0 12px 28px rgba(91, 33, 182, 0.35);
+          }
+          .creator-showcase-card.assistant-card .creator-avatar-ring {
+            background: linear-gradient(135deg, #1E3A8A, #7C3AED);
+            color: #F1F5F9;
+          }
+
+          /* LİDERLER TABLOSU - İLK 10 OYUNCU PANELİ */
+          .top-players-showcase-box {
+            background: linear-gradient(155deg, var(--bg-surface), rgba(17, 34, 68, 0.85) 65%, rgba(91, 33, 182, 0.22));
+            border: 1px solid var(--border-strong);
+            border-radius: 22px;
+            padding: 26px;
+            margin-bottom: 24px;
+          }
+          .top-players-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+          }
+          .top-players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 11px;
+          }
+          .player-leader-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 15px;
+            background: rgba(8, 17, 36, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            transition: transform 0.22s ease, border-color 0.22s ease;
+          }
+          .player-leader-item:hover {
+            transform: translateX(3px);
+            border-color: var(--primary);
+          }
+          .player-leader-item.vip-podium {
+            border-color: rgba(251, 191, 36, 0.42);
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.08), rgba(8, 17, 36, 0.65));
+          }
+
+          /* GENEL SOHBET (GLOBAL CHAT) STÜDYO ARAYÜZÜ */
+          .global-chat-shell {
+            display: grid;
+            grid-template-columns: 1fr 270px;
+            gap: 20px;
+            height: calc(100vh - 210px);
+            min-height: 500px;
+          }
+          .global-chat-main-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+          }
+          .global-chat-topbar {
+            padding: 15px 22px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(17, 34, 68, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+          }
+          .global-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+          .chat-msg-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 13px 16px;
+            display: flex;
+            gap: 12px;
+            animation: cardStaggerIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            transition: border-color 0.2s ease;
+          }
+          .chat-msg-card:hover {
+            border-color: var(--border-strong);
+          }
+          .chat-msg-card.my-own-msg {
+            background: linear-gradient(145deg, rgba(17, 34, 68, 0.95), rgba(91, 33, 182, 0.22));
+            border-color: rgba(125, 211, 252, 0.3);
+          }
+          .chat-msg-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, var(--purple-deep), var(--primary));
+            color: #081124;
+            font-weight: 800;
+            font-size: 0.92rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+          }
+          .chat-msg-body {
+            flex: 1;
+            min-width: 0;
+          }
+          .chat-msg-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 5px;
+          }
+          .chat-msg-author-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+          }
+          .chat-msg-text {
+            font-size: 0.92rem;
+            line-height: 1.5;
+            color: var(--text-main);
+            word-break: break-word;
+          }
+          .global-chat-composer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(8, 17, 36, 0.55);
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+          }
+          .chat-ban-lock-banner {
+            display: none;
+            background: rgba(244, 63, 94, 0.14);
+            border: 1px solid var(--danger);
+            color: #FECDD3;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+          }
+          .chat-rules-aside {
+            background: linear-gradient(165deg, var(--bg-surface), rgba(91, 33, 182, 0.16));
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow-y: auto;
+          }
+          .chat-rule-pill {
+            background: rgba(8, 17, 36, 0.55);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 11px 13px;
+            font-size: 0.81rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+          }
+          .chat-rule-pill strong {
+            display: block;
+            color: var(--primary);
+            margin-bottom: 3px;
+            font-size: 0.83rem;
+          }
+
+          /* ADMİN RÜTBE YÖNETİMİ KARTLARI */
+          .rank-assign-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 16px;
+          }
+          .assigned-rank-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+          }
+
+          @media (max-width: 980px) {
+            .global-chat-shell {
+              grid-template-columns: 1fr;
+              height: auto;
+            }
+            .global-chat-main-panel {
+              height: 68vh;
+              min-height: 440px;
+            }
+            .creators-dual-grid {
+              grid-template-columns: 1fr;
+            }
+            .rank-assign-grid {
+              grid-template-columns: 1fr;
+            }
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+
+      // -----------------------------------------------------------------------
+      // 2. AKILLI TÜRKÇE KÜFÜR & ARGO FİLTRESİ
+      // -----------------------------------------------------------------------
+      const BANNED_ROOTS = [
+        "amk", "aq", "amq", "amina", "aminakoy", "amcik", "sik", "siktir",
+        "sikik", "sikerim", "sikeyim", "oc", "orospu", "orosbu", "pic",
+        "yarrak", "yarak", "tasak", "tassak", "gotveren", "gotunu", "gotlek",
+        "ibne", "ipne", "pust", "kahpe", "pezevenk", "gavat", "kaltak",
+        "fahise", "surtuk", "dalyarak", "lavuk", "gerizekali", "aptal",
+        "salak", "mal", "bok", "fuck", "bitch", "asshole", "dick", "pussy", "nigger"
+      ];
+
+      const SAFE_WHITELIST = [
+        "merhaba", "selam", "guzel", "harika", "oyun", "oyuncu", "basari",
+        "kalem", "malzeme", "salam", "sikinti", "piksel", "arkadas", "tesekkur",
+        "yardimci", "yapimci", "lider", "sohbet", "ekran", "sistem", "ayarlar",
+        "normal", "malatya", "kemal", "cemal", "ismail", "simal"
+      ];
+
+      function normalizeTrText(str) {
+        return String(str || "")
+          .toLowerCase()
+          .replace(/ı/g, "i")
+          .replace(/İ/g, "i")
+          .replace(/ş/g, "s")
+          .replace(/ğ/g, "g")
+          .replace(/ü/g, "u")
+          .replace(/ö/g, "o")
+          .replace(/ç/g, "c")
+          .replace(/0/g, "o")
+          .replace(/1/g, "i")
+          .replace(/3/g, "e")
+          .replace(/4/g, "a")
+          .replace(/5/g, "s")
+          .replace(/7/g, "t")
+          .replace(/@/g, "a");
+      }
+
+      function containsProfanity(rawMessage) {
+        const normalized = normalizeTrText(rawMessage);
+        // Kelime bazlı kontrol
+        const tokens = normalized.split(/[^a-z]+/).filter(Boolean);
+        for (const token of tokens) {
+          if (SAFE_WHITELIST.includes(token)) continue;
+          const collapsed = token.replace(/(.)\1+/g, "$1"); // "siiiktir" -> "siktir"
+          if (SAFE_WHITELIST.includes(collapsed)) continue;
+          for (const bad of BANNED_ROOTS) {
+            if (bad.length <= 3) {
+              if (token === bad || collapsed === bad) return true;
+            } else {
+              if (token.includes(bad) || collapsed.includes(bad)) return true;
+            }
+          }
+        }
+        // Harf aralarına nokta/boşluk koyarak gizlenen küfürler ("a.m.k", "o ç", "s i k")
+        const squashed = normalized.replace(/[^a-z]/g, "").replace(/(.)\1+/g, "$1");
+        const directShort = ["amk", "amq", "sik", "siktir", "orospu", "yarrak", "amcik", "pezevenk", "gotveren"];
+        for (const d of directShort) {
+          if (squashed.includes(d)) {
+            // Whitelist kontrolü
+            let isSafeWord = false;
+            for (const w of SAFE_WHITELIST) {
+              if (squashed === w) isSafeWord = true;
+            }
+            if (!isSafeWord) return true;
+          }
+        }
+        return false;
+      }
+
+      // -----------------------------------------------------------------------
+      // 3. RÜTBE & İLK 3 VIP HESAPLAMA MOTORU
+      // -----------------------------------------------------------------------
+      function getTop3VipTags() {
+        const sorted = Object.values(playerLeaderboardMap || {})
+          .filter(p => p && p.tag && (p.plays || 0) > 0)
+          .sort((a, b) => (b.plays || 0) - (a.plays || 0))
+          .slice(0, 3);
+        return sorted.map(p => String(p.tag).toUpperCase());
+      }
+
+      function getRankCssClass(rankLabel) {
+        const r = normalizeTrText(rankLabel);
+        if (r === "yapimci") return "rank-style-yapimci";
+        if (r.includes("yardimci")) return "rank-style-yardimci";
+        if (r.includes("youtuber")) return "rank-style-youtuber";
+        if (r.includes("tester")) return "rank-style-tester";
+        if (r.includes("mod")) return "rank-style-moderator";
+        return "rank-style-custom";
+      }
+
+      function getPlayerBadges(tag, nick) {
+        const badges = [];
+        const cleanTag = String(tag || "").replace("#", "").trim().toUpperCase();
+        const cleanNick = String(nick || "").trim().toLowerCase();
+
+        // 1. Admin tarafından atanan rütbeleri bul (Kimlik veya Nick üzerinden)
+        if (cleanTag && userRanksMap["tag_" + cleanTag]) {
+          badges.push({
+            label: userRanksMap["tag_" + cleanTag].rank,
+            cls: getRankCssClass(userRanksMap["tag_" + cleanTag].rank)
+          });
+        } else if (cleanNick && userRanksMap["nick_" + cleanNick]) {
+          badges.push({
+            label: userRanksMap["nick_" + cleanNick].rank,
+            cls: getRankCssClass(userRanksMap["nick_" + cleanNick].rank)
+          });
+        } else if (cleanNick === "tipistilki") {
+          // Varsayılan yapımcı yardımcısı rozeti
+          badges.push({
+            label: "Yapımcı Yardımcısı",
+            cls: "rank-style-yardimci"
+          });
+        }
+
+        // 2. Liderler tablosunda İlk 3'teyse otomatik VIP rozeti ekle (sadece görünüş)
+        const top3Tags = getTop3VipTags();
+        if (cleanTag && top3Tags.includes(cleanTag)) {
+          badges.push({
+            label: "VIP",
+            cls: "rank-style-vip"
+          });
+        }
+
+        return badges;
+      }
+
+      function renderBadgesHtml(tag, nick) {
+        const list = getPlayerBadges(tag, nick);
+        if (!list.length) return "";
+        return list
+          .map(b => `<span class="studio-rank-badge ${b.cls}">${escapeHtml(b.label)}</span>`)
+          .join(" ");
+      }
+
+      // -----------------------------------------------------------------------
+      // 4. DOM ENJEKSİYONU: GENEL SOHBET, YAPIMCILAR & ADMIN RÜTBE SEKMESİ
+      // -----------------------------------------------------------------------
+      function injectStudioExtensionsIntoDOM() {
+        // A. Sol Menüye "Genel Sohbet" Ekle
+        const navList = document.querySelector(".sidebar .nav-list");
+        if (navList && !document.getElementById("side-chat")) {
+          const chatLi = document.createElement("li");
+          chatLi.innerHTML = `
+            <button class="nav-item-btn" id="side-chat" onclick="navigateTo('chat')">
+              <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              Genel Sohbet
+              <span class="nav-badge-count" id="sideChatOnlinePill" style="color: var(--neon-micro);">Canlı</span>
+            </button>
+          `;
+          // Oyun Merkezi'nin hemen altına yerleştir
+          const firstItem = navList.children[0];
+          if (firstItem && firstItem.nextSibling) {
+            navList.insertBefore(chatLi, firstItem.nextSibling);
+          } else {
+            navList.appendChild(chatLi);
+          }
+        }
+
+        // B. Mobil Alt Bara "Sohbet" Ekle
+        const bottomBar = document.querySelector(".bottom-bar");
+        if (bottomBar && !document.getElementById("bot-chat")) {
+          const botChatBtn = document.createElement("button");
+          botChatBtn.className = "bottom-btn";
+          botChatBtn.id = "bot-chat";
+          botChatBtn.setAttribute("onclick", "navigateTo('chat')");
+          botChatBtn.innerHTML = `
+            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            Sohbet
+          `;
+          const firstBot = bottomBar.children[0];
+          if (firstBot && firstBot.nextSibling) {
+            bottomBar.insertBefore(botChatBtn, firstBot.nextSibling);
+          } else {
+            bottomBar.appendChild(botChatBtn);
+          }
+        }
+
+        // C. Ana İçerik Alanına "Genel Sohbet" Sayfa Bölümünü Ekle
+        const contentArea = document.querySelector(".content-area");
+        if (contentArea && !document.getElementById("view-chat")) {
+          const chatSection = document.createElement("section");
+          chatSection.id = "view-chat";
+          chatSection.className = "page-section";
+          chatSection.innerHTML = `
+            <div class="section-header" style="margin-bottom: 18px;">
+              <div class="section-eyebrow"><span class="micro-pulse"></span> Firebase Gerçek Zamanlı Topluluk</div>
+              <h1>Genel Sohbet</h1>
+              <p>Stüdyodaki tüm oyuncularla anlık sohbet et. Saygılı ol, spam yapma ve keyfine bak.</p>
+            </div>
+
+            <div class="global-chat-shell">
+              <div class="global-chat-main-panel">
+                <div class="global-chat-topbar">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:var(--neon-micro);box-shadow:0 0 8px var(--neon-micro-glow);"></span>
+                    <strong style="font-size: 0.94rem;">Genel Stüdyo Kanalı</strong>
+                    <span class="code-meta-pill" id="chatHeaderOnlineCount">1 Çevrimiçi</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="code-meta-pill" id="chatQuotaPill" style="color: var(--primary);">Mesaj Hakkı: 10 / 10</span>
+                  </div>
+                </div>
+
+                <div class="global-chat-messages" id="globalChatMessagesFeed">
+                  <p style="color: var(--text-muted); text-align: center; margin: auto;">Sohbet mesajları yükleniyor...</p>
+                </div>
+
+                <div class="global-chat-composer">
+                  <div class="chat-ban-lock-banner" id="chatBanLockBanner">
+                    <span>Küfür tespit edildiği için 10 dakika sohbet banı aldınız.</span>
+                    <strong id="chatBanCountdownText" style="color: #fff; font-family: monospace; font-size: 0.96rem;">10:00</strong>
+                  </div>
+
+                  <div id="chatReplyBanner" style="display: none; align-items: center; justify-content: space-between; background: rgba(124, 58, 237, 0.18); border: 1px solid rgba(124, 58, 237, 0.45); padding: 5px 12px; border-radius: 9px; font-size: 0.79rem;">
+                    <span id="chatReplyTargetText">Yanıtlanıyor: @Oyuncu</span>
+                    <button type="button" style="background:none;border:none;color:var(--primary);font-weight:700;cursor:pointer;" id="cancelChatReplyBtn">Vazgeç</button>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                      <span>Gönderen:</span>
+                      <strong style="color: var(--primary);" id="chatComposerNick">@Misafir</strong>
+                      <span id="chatComposerOwnBadges"></span>
+                    </div>
+                    <div class="emoji-quick-strip">
+                      <button type="button" class="emoji-chip-btn" data-chat-emoji="👋">👋</button>
+                      <button type="button" class="emoji-chip-btn" data-chat-emoji="🎮">🎮</button>
+                      <button type="button" class="emoji-chip-btn" data-chat-emoji="🔥">🔥</button>
+                      <button type="button" class="emoji-chip-btn" data-chat-emoji="❤️">❤️</button>
+                      <button type="button" class="emoji-chip-btn" data-chat-emoji="🚀">🚀</button>
+                      <button type="button" class="emoji-chip-btn" data-chat-emoji="😂">😂</button>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 10px;">
+                    <input type="text" id="globalChatInput" class="form-ctrl" maxlength="220" placeholder="Genel sohbete mesaj yaz (Enter ile gönder)...">
+                    <button type="button" id="globalChatSendBtn" class="btn btn-play-run" style="padding: 0 22px; white-space: nowrap;">Gönder</button>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="chat-rules-aside">
+                <h3 style="font-size: 1rem; font-weight: 800; color: var(--primary);">Sohbet Kuralları & Bilgi</h3>
+                <div class="chat-rule-pill">
+                  <strong>10 Mesaj Spam Sınırı</strong>
+                  Art arda en fazla 10 mesaj gönderebilirsin. Kota dolduğunda kısa süre bekleyince otomatik yenilenir.
+                </div>
+                <div class="chat-rule-pill">
+                  <strong>Küfür & Argo Koruması</strong>
+                  Küfür veya hakaret içeren mesajlar otomatik engellenir ve 10 dakika sohbet banı uygulanır.
+                </div>
+                <div class="chat-rule-pill">
+                  <strong>Rütbe & VIP Rozetleri</strong>
+                  Admin tarafından verilen rütbeler ve Liderler Tablosu ilk 3 VIP rozeti mesajlarının yanında görünür.
+                </div>
+              </aside>
+            </div>
+          `;
+          contentArea.appendChild(chatSection);
+
+          // Sohbet olay dinleyicileri
+          document.getElementById("globalChatSendBtn").addEventListener("click", sendGlobalChatMessage);
+          document.getElementById("globalChatInput").addEventListener("keyup", (e) => {
+            if (e.key === "Enter") sendGlobalChatMessage();
+          });
+          document.getElementById("cancelChatReplyBtn").addEventListener("click", () => {
+            chatReplyTarget = "";
+            document.getElementById("chatReplyBanner").style.display = "none";
+          });
+          chatSection.querySelectorAll("[data-chat-emoji]").forEach(btn => {
+            btn.addEventListener("click", () => {
+              const inp = document.getElementById("globalChatInput");
+              if (!inp.disabled && inp.value.length < 215) {
+                inp.value += btn.getAttribute("data-chat-emoji");
+                inp.focus();
+              }
+            });
+          });
+        }
+
+        // D. Yapımcılar Bölümünü Güncelle: guzeladam (Yapımcı) + tipistilki (Yapımcı Yardımcısı)
+        const creatorView = document.getElementById("view-creator");
+        if (creatorView) {
+          creatorView.innerHTML = `
+            <div class="section-header" style="text-align: center; max-width: 680px; margin: 0 auto 24px auto;">
+              <div class="section-eyebrow"><span class="micro-pulse"></span> Stüdyo Ekibi</div>
+              <h1>Yapımcılar</h1>
+              <p>Platformun geliştirilmesinde görev alan resmi stüdyo kadrosu. Kartlara tıklayarak resmi YouTube kanalımıza ulaşabilirsin.</p>
+            </div>
+
+            <div class="creators-dual-grid">
+              <!-- ANA YAPIMCI: GUZELADAM -->
+              <div class="creator-showcase-card primary-founder" onclick="window.open('${STUDIO_YT_URL}', '_blank', 'noopener,noreferrer')">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                  <div class="creator-avatar-ring">GA</div>
+                  <span class="studio-rank-badge rank-style-yapimci" style="margin-bottom: 12px; font-size: 0.78rem; padding: 4px 13px;">Yapımcı</span>
+                  <h2 style="font-size: 1.85rem; font-weight: 800; margin-bottom: 10px;">guzeladam</h2>
+                  <p style="color: var(--text-muted); font-size: 0.94rem; line-height: 1.65; margin-bottom: 24px;">
+                    Stüdyonun kurucusu ve baş geliştiricisi. Tüm oyun sistemleri, altyapı mimarisi ve açık kaynak projeler <strong>guzeladam</strong> imzası taşır.
+                  </p>
+                </div>
+                <a href="${STUDIO_YT_URL}" target="_blank" rel="noopener noreferrer" class="yt-btn" onclick="event.stopPropagation()">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  </svg>
+                  YouTube: @guzeladam
+                </a>
+              </div>
+
+              <!-- YAPIMCI YARDIMCISI: TIPISTILKI -->
+              <div class="creator-showcase-card assistant-card" onclick="window.open('${STUDIO_YT_URL}', '_blank', 'noopener,noreferrer')">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                  <div class="creator-avatar-ring">TP</div>
+                  <span class="studio-rank-badge rank-style-yardimci" style="margin-bottom: 12px; font-size: 0.78rem; padding: 4px 13px;">Yapımcı Yardımcısı</span>
+                  <h2 style="font-size: 1.7rem; font-weight: 800; margin-bottom: 10px;">tipistilki</h2>
+                  <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; margin-bottom: 24px;">
+                    Stüdyo süreçlerinde, testlerde ve topluluk düzeninde <strong>guzeladam</strong>'a destek veren resmi yapımcı yardımcısı.
+                  </p>
+                </div>
+                <span class="btn btn-secondary" style="width: 100%; border-color: var(--border-strong); color: var(--primary);">
+                  guzeladam Kanalına Git
+                </span>
+              </div>
+            </div>
+          `;
+        }
+
+        // E. Liderler Tablosunun En Üstüne "En Çok Oynayan İlk 10 Oyuncu" Kartını Ekle
+        const leaderboardView = document.getElementById("view-leaderboard");
+        if (leaderboardView && !document.getElementById("topPlayersShowcaseBox")) {
+          const topPlayersBox = document.createElement("div");
+          topPlayersBox.id = "topPlayersShowcaseBox";
+          topPlayersBox.className = "top-players-showcase-box";
+          topPlayersBox.innerHTML = `
+            <div class="top-players-header">
+              <div>
+                <h3 style="font-size: 1.18rem; font-weight: 800; color: var(--primary); margin-bottom: 4px;">En Çok Oyun Oynayan Oyuncular (İlk 10)</h3>
+                <p style="font-size: 0.84rem; color: var(--text-muted);">Sıralamada ilk 3'e giren oyuncular yorumlarda ve sohbette otomatik <strong style="color: #FBBF24;">VIP</strong> rozeti kazanır.</p>
+              </div>
+              <span class="studio-rank-badge rank-style-vip">İlk 3 = VIP Rozeti</span>
+            </div>
+            <div class="top-players-grid" id="topPlayersList"></div>
+          `;
+          const lbContainer = leaderboardView.querySelector(".leaderboard-container");
+          if (lbContainer) {
+            leaderboardView.insertBefore(topPlayersBox, lbContainer);
+          } else {
+            leaderboardView.appendChild(topPlayersBox);
+          }
+        }
+
+        // F. Admin Paneli İçine "Rütbe Yönetimi" Sekmesini Ekle
+        const adminTabsRow = document.querySelector("#adminControlDashboard .admin-tabs-row");
+        const adminDialogBox = document.querySelector("#adminControlDashboard .admin-dialog-box");
+        if (adminTabsRow && adminDialogBox && !document.getElementById("tab-ranks")) {
+          const rankTabBtn = document.createElement("button");
+          rankTabBtn.className = "admin-tab-btn";
+          rankTabBtn.textContent = "Rütbe Yönetimi";
+          rankTabBtn.setAttribute("onclick", "switchAdminTab('tab-ranks', this)");
+          // Oyunları Yönet sekmesinin yanına ekle
+          const refNode = adminTabsRow.children[3] || null;
+          adminTabsRow.insertBefore(rankTabBtn, refNode);
+
+          const rankTabContent = document.createElement("div");
+          rankTabContent.id = "tab-ranks";
+          rankTabContent.className = "admin-tab-content";
+          rankTabContent.innerHTML = `
+            <h4 style="color: var(--primary); margin-bottom: 6px;">Oyuncuya veya Kendine Rütbe Ver (Görünüş Rozeti)</h4>
+            <p style="font-size: 0.83rem; color: var(--text-muted); margin-bottom: 14px;">
+              5 haneli kimlik kodu (örn: <strong>K9X7B</strong>) veya oyuncu nicki yazarak rütbe atayabilirsin. Rütbeler yorumlarda, genel sohbette ve oyuncunun kendi profilinde görünür.
+            </p>
+
+            <div class="rank-assign-grid">
+              <input type="text" id="adminRankTargetInput" class="form-ctrl" placeholder="Kimlik (#XXXXX) veya Nick">
+              <select id="adminRankPresetSelect" class="form-ctrl">
+                <option value="Yapımcı">Yapımcı</option>
+                <option value="Yapımcı Yardımcısı">Yapımcı Yardımcısı</option>
+                <option value="YouTuber">YouTuber</option>
+                <option value="Tester">Tester</option>
+                <option value="Moderatör">Moderatör</option>
+                <option value="CUSTOM">Özel Rütbe Yaz...</option>
+              </select>
+              <input type="text" id="adminRankCustomInput" class="form-ctrl" placeholder="Özel rütbe adı (opsiyonel)">
+              <button type="button" id="adminAssignRankBtn" class="btn btn-play-run">Rütbe Ver</button>
+            </div>
+
+            <div style="margin-bottom: 18px; display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" id="adminFillSelfTagBtn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem;">Kendi Kimliğimi Doldur</button>
+            </div>
+
+            <h4 style="color: var(--text-main); font-size: 0.94rem; margin-bottom: 10px;">Aktif Rütbeli Oyuncular</h4>
+            <div id="adminAssignedRanksList" style="margin-bottom: 22px;"></div>
+
+            <h4 style="color: var(--danger); font-size: 0.94rem; margin-bottom: 10px;">Aktif Sohbet Banları (10 Dk Küfür Cezaları)</h4>
+            <div id="adminChatBansList"></div>
+          `;
+          adminDialogBox.appendChild(rankTabContent);
+
+          document.getElementById("adminAssignRankBtn").addEventListener("click", adminAssignPlayerRank);
+          document.getElementById("adminFillSelfTagBtn").addEventListener("click", () => {
+            if (typeof myPlayerTag !== "undefined" && myPlayerTag) {
+              document.getElementById("adminRankTargetInput").value = "#" + myPlayerTag;
+            }
+          });
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 5. ADMİN RÜTBE VERME & SİLME FONKSİYONLARI
+      // -----------------------------------------------------------------------
+      async function adminAssignPlayerRank() {
+        const rawTarget = document.getElementById("adminRankTargetInput").value.trim();
+        const preset = document.getElementById("adminRankPresetSelect").value;
+        const customText = document.getElementById("adminRankCustomInput").value.trim();
+
+        if (!rawTarget) {
+          showStudioToast("Lütfen bir oyuncu kimliği (#XXXXX) veya nick gir.");
+          return;
+        }
+
+        const chosenRank = (preset === "CUSTOM" ? customText : (customText || preset)).trim();
+        if (!chosenRank) {
+          showStudioToast("Lütfen rütbe adını yaz veya listeden seç.");
+          return;
+        }
+
+        const isTagFormat = rawTarget.startsWith("#") || /^[A-Z0-9]{5}$/i.test(rawTarget);
+        const cleanVal = rawTarget.replace(/^#/, "").trim();
+        const storageKey = isTagFormat
+          ? "tag_" + cleanVal.toUpperCase()
+          : "nick_" + cleanVal.toLowerCase();
+
+        userRanksMap[storageKey] = {
+          key: storageKey,
+          displayTarget: isTagFormat ? "#" + cleanVal.toUpperCase() : cleanVal,
+          rank: chosenRank.slice(0, 26),
+          updatedAt: Date.now()
+        };
+
+        await saveExtensionCloudState();
+        renderAdminAssignedRanks();
+        refreshAllBadgeViews();
+
+        document.getElementById("adminRankTargetInput").value = "";
+        document.getElementById("adminRankCustomInput").value = "";
+        playRetroSound("star");
+        showStudioToast(`${isTagFormat ? "#" + cleanVal.toUpperCase() : cleanVal} için "${chosenRank}" rütbesi verildi.`);
+      }
+
+      async function adminRemovePlayerRank(storageKey) {
+        delete userRanksMap[storageKey];
+        await saveExtensionCloudState();
+        renderAdminAssignedRanks();
+        refreshAllBadgeViews();
+        showStudioToast("Rütbe kaldırıldı.");
+      }
+
+      async function adminLiftChatBan(tag) {
+        delete chatBansMap[tag];
+        if (typeof myPlayerTag !== "undefined" && myPlayerTag === tag) {
+          localChatBanUntil = 0;
+          await idbSet("chat_ban_until", 0);
+        }
+        await saveExtensionCloudState();
+        renderAdminAssignedRanks();
+        updateChatLockUI();
+        showStudioToast(`#${tag} oyuncusunun sohbet banı kaldırıldı.`);
+      }
+
+      function renderAdminAssignedRanks() {
+        const listEl = document.getElementById("adminAssignedRanksList");
+        if (listEl) {
+          const entries = Object.values(userRanksMap || {});
+          if (entries.length === 0) {
+            listEl.innerHTML = "<p style='color: var(--text-muted); font-size: 0.84rem;'>Henüz manuel rütbe atanmamış.</p>";
+          } else {
+            listEl.innerHTML = entries.map(item => `
+              <div class="assigned-rank-row">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                  <strong>${escapeHtml(item.displayTarget)}</strong>
+                  <span class="studio-rank-badge ${getRankCssClass(item.rank)}">${escapeHtml(item.rank)}</span>
+                </div>
+                <button type="button" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.76rem; border-color: var(--danger); color: var(--danger);" data-del-rank="${escapeHtml(item.key)}">Kaldır</button>
+              </div>
+            `).join("");
+            listEl.querySelectorAll("[data-del-rank]").forEach(btn => {
+              btn.addEventListener("click", () => adminRemovePlayerRank(btn.getAttribute("data-del-rank")));
+            });
+          }
+        }
+
+        const chatBanListEl = document.getElementById("adminChatBansList");
+        if (chatBanListEl) {
+          const now = Date.now();
+          const activeBans = Object.entries(chatBansMap || {}).filter(([, info]) => info && info.until > now);
+          if (activeBans.length === 0) {
+            chatBanListEl.innerHTML = "<p style='color: var(--text-muted); font-size: 0.84rem;'>Şu anda sohbet banı olan oyuncu yok.</p>";
+          } else {
+            chatBanListEl.innerHTML = activeBans.map(([tag, info]) => {
+              const remMin = Math.ceil((info.until - now) / 60000);
+              return `
+                <div class="assigned-rank-row" style="border-color: var(--danger);">
+                  <div style="font-size: 0.84rem;">
+                    <strong style="color: var(--danger);">#${escapeHtml(tag)}</strong>
+                    <span style="color: var(--text-muted); margin-left: 8px;">(${escapeHtml(info.nick || "Oyuncu")} • Kalan ~${remMin} dk)</span>
+                  </div>
+                  <button type="button" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.76rem;" data-lift-chatban="${escapeHtml(tag)}">Banı Aç</button>
+                </div>
+              `;
+            }).join("");
+            chatBanListEl.querySelectorAll("[data-lift-chatban]").forEach(btn => {
+              btn.addEventListener("click", () => adminLiftChatBan(btn.getAttribute("data-lift-chatban")));
+            });
+          }
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 6. GENEL SOHBET (FIREBASE CANLI + 10 MESAJ SPAM + 10 DK KÜFÜR BANI)
+      // -----------------------------------------------------------------------
+      function getRemainingSpamQuota() {
+        const now = Date.now();
+        chatMessageTimestamps = chatMessageTimestamps.filter(ts => now - ts < CHAT_SPAM_WINDOW_MS);
+        return Math.max(0, CHAT_SPAM_LIMIT - chatMessageTimestamps.length);
+      }
+
+      function getActiveChatBanUntil() {
+        const cloudBan = (typeof myPlayerTag !== "undefined" && chatBansMap[myPlayerTag])
+          ? (chatBansMap[myPlayerTag].until || 0)
+          : 0;
+        return Math.max(localChatBanUntil || 0, cloudBan);
+      }
+
+      function updateChatLockUI() {
+        const input = document.getElementById("globalChatInput");
+        const sendBtn = document.getElementById("globalChatSendBtn");
+        const banBanner = document.getElementById("chatBanLockBanner");
+        const countdownEl = document.getElementById("chatBanCountdownText");
+        const quotaPill = document.getElementById("chatQuotaPill");
+        if (!input || !sendBtn) return;
+
+        const now = Date.now();
+        const banUntil = getActiveChatBanUntil();
+
+        if (banUntil > now) {
+          const leftSec = Math.ceil((banUntil - now) / 1000);
+          const mm = String(Math.floor(leftSec / 60)).padStart(2, "0");
+          const ss = String(leftSec % 60).padStart(2, "0");
+          if (banBanner) banBanner.style.display = "flex";
+          if (countdownEl) countdownEl.innerText = `${mm}:${ss}`;
+          input.disabled = true;
+          sendBtn.disabled = true;
+          input.placeholder = "Sohbet banınız bitene kadar mesaj yazamazsınız.";
+          return;
+        } else {
+          if (banBanner) banBanner.style.display = "none";
+        }
+
+        const remQuota = getRemainingSpamQuota();
+        if (quotaPill) {
+          quotaPill.innerText = `Mesaj Hakkı: ${remQuota} / ${CHAT_SPAM_LIMIT}`;
+          quotaPill.style.color = remQuota <= 2 ? "var(--warning)" : "var(--primary)";
+        }
+
+        if (remQuota <= 0 && !isAdminAuthenticated) {
+          const oldest = chatMessageTimestamps[0] || now;
+          const waitSec = Math.max(1, Math.ceil((CHAT_SPAM_WINDOW_MS - (now - oldest)) / 1000));
+          input.disabled = true;
+          sendBtn.disabled = true;
+          input.placeholder = `10 mesaj spam sınırına ulaştın. Yeni hak için ${waitSec} sn bekle...`;
+        } else {
+          input.disabled = false;
+          sendBtn.disabled = false;
+          input.placeholder = "Genel sohbete mesaj yaz (Enter ile gönder)...";
+        }
+      }
+
+      async function triggerProfanityChatBan() {
+        const banUntil = Date.now() + CHAT_PROFANITY_BAN_MS;
+        localChatBanUntil = banUntil;
+        await idbSet("chat_ban_until", banUntil);
+
+        if (typeof myPlayerTag !== "undefined" && myPlayerTag) {
+          chatBansMap[myPlayerTag] = {
+            until: banUntil,
+            nick: (typeof myPlayerNickname !== "undefined" && myPlayerNickname) ? myPlayerNickname : "Misafir",
+            reason: "Genel sohbette küfür/argo kullanımı"
+          };
+          if (typeof firebaseDb !== "undefined" && firebaseDb) {
+            firebaseDb.child("guzeladam_hub/chat_bans/" + myPlayerTag).set(chatBansMap[myPlayerTag]);
+          }
+        }
+
+        playRetroSound("ban");
+        updateChatLockUI();
+        showStudioToast("Küfür tespit edildi! 10 dakika sohbet banı yediniz.");
+      }
+
+      async function sendGlobalChatMessage() {
+        const input = document.getElementById("globalChatInput");
+        if (!input) return;
+
+        // 1. Aktif ban kontrolü
+        if (getActiveChatBanUntil() > Date.now()) {
+          updateChatLockUI();
+          return;
+        }
+
+        // 2. 10 mesaj spam sınırı kontrolü
+        if (getRemainingSpamQuota() <= 0 && !isAdminAuthenticated) {
+          updateChatLockUI();
+          showStudioToast("10 mesaj spam sınırına ulaştın, biraz bekle!");
+          return;
+        }
+
+        const rawText = input.value.trim();
+        if (!rawText) return;
+
+        // 3. Küfür kontrolü -> yakalanırsa 10 dakika ban!
+        if (containsProfanity(rawText)) {
+          input.value = "";
+          await triggerProfanityChatBan();
+          return;
+        }
+
+        const finalMsg = chatReplyTarget ? `@${chatReplyTarget} ${rawText}` : rawText;
+        const senderNick = (typeof myPlayerNickname !== "undefined" && myPlayerNickname) ? myPlayerNickname : "Misafir";
+        const senderTag = (typeof myPlayerTag !== "undefined" && myPlayerTag) ? myPlayerTag : "00000";
+
+        const msgObj = {
+          id: "chat_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+          author: senderNick,
+          tag: senderTag,
+          text: finalMsg.slice(0, 240),
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          timestamp: Date.now()
+        };
+
+        chatMessageTimestamps.push(Date.now());
+        input.value = "";
+        chatReplyTarget = "";
+        const replyBanner = document.getElementById("chatReplyBanner");
+        if (replyBanner) replyBanner.style.display = "none";
+
+        updateChatLockUI();
+        playRetroSound("click");
+
+        // Yerel hemen ekle ve Firebase'e yaz
+        globalChatMessages.push(msgObj);
+        if (globalChatMessages.length > 100) {
+          globalChatMessages = globalChatMessages.slice(-100);
+        }
+        renderGlobalChatMessages();
+
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub/global_chat").push(msgObj).catch(() => {});
+        } else {
+          await idbSet("global_chat_cache", globalChatMessages);
+        }
+      }
+
+      function renderGlobalChatMessages() {
+        const feed = document.getElementById("globalChatMessagesFeed");
+        if (!feed) return;
+
+        if (!globalChatMessages || globalChatMessages.length === 0) {
+          feed.innerHTML = `
+            <div style="text-align: center; margin: auto; color: var(--text-muted); padding: 40px 16px;">
+              <h4 style="color: var(--text-main); margin-bottom: 6px;">Genel Sohbet Henüz Sessiz</h4>
+              <p style="font-size: 0.86rem;">İlk mesajı göndererek topluluk sohbetini başlat!</p>
+            </div>
+          `;
+          return;
+        }
+
+        const wasNearBottom = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 120;
+
+        feed.innerHTML = globalChatMessages.map(msg => {
+          const isMine = typeof myPlayerTag !== "undefined" && msg.tag === myPlayerTag;
+          const initial = (msg.author || "O").slice(0, 1).toUpperCase();
+          const badgesHtml = renderBadgesHtml(msg.tag, msg.author);
+          const safeBody = escapeHtml(msg.text || "").replace(
+            /(@[a-zA-Z0-9ğüşıöçĞÜŞİÖÇ_]+)/g,
+            '<span class="comment-mention-highlight">$1</span>'
+          );
+
+          return `
+            <div class="chat-msg-card ${isMine ? "my-own-msg" : ""}">
+              <div class="chat-msg-avatar">${escapeHtml(initial)}</div>
+              <div class="chat-msg-body">
+                <div class="chat-msg-meta">
+                  <div class="chat-msg-author-group">
+                    <strong style="font-size: 0.9rem; color: var(--primary);">${escapeHtml(msg.author || "Oyuncu")}</strong>
+                    ${badgesHtml}
+                    <span class="comment-tag-chip">#${escapeHtml(msg.tag || "-----")}</span>
+                  </div>
+                  <span class="comment-time">${escapeHtml(msg.time || "")}</span>
+                </div>
+                <div class="chat-msg-text">${safeBody}</div>
+                <div style="margin-top: 7px; display: flex; gap: 8px;">
+                  <button type="button" class="comment-mini-action" style="padding: 3px 9px; font-size: 0.74rem;" data-chat-reply="${escapeHtml(msg.author || "Oyuncu")}">Yanıtla</button>
+                  ${isAdminAuthenticated && msg.firebaseKey ? `<button type="button" class="comment-mini-action" style="padding: 3px 9px; font-size: 0.74rem; border-color: var(--danger); color: var(--danger);" data-chat-del="${escapeHtml(msg.firebaseKey)}">Sil</button>` : ""}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        feed.querySelectorAll("[data-chat-reply]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            chatReplyTarget = btn.getAttribute("data-chat-reply");
+            const rb = document.getElementById("chatReplyBanner");
+            const rt = document.getElementById("chatReplyTargetText");
+            if (rb && rt) {
+              rt.innerText = `Yanıtlanıyor: @${chatReplyTarget}`;
+              rb.style.display = "flex";
+            }
+            const inp = document.getElementById("globalChatInput");
+            if (inp && !inp.disabled) inp.focus();
+          });
+        });
+
+        feed.querySelectorAll("[data-chat-del]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const fKey = btn.getAttribute("data-chat-del");
+            if (typeof firebaseDb !== "undefined" && firebaseDb && fKey) {
+              firebaseDb.child("guzeladam_hub/global_chat/" + fKey).remove();
+              showStudioToast("Sohbet mesajı silindi.");
+            }
+          });
+        });
+
+        if (wasNearBottom || globalChatMessages.length <= 15) {
+          feed.scrollTop = feed.scrollHeight;
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 7. MEVCUT FONKSİYONLARI GENİŞLET (HİÇBİR ŞEYİ SİLMEDEN SARMA / HOOK)
+      // -----------------------------------------------------------------------
+      async function saveExtensionCloudState() {
+        await idbSet("user_ranks", userRanksMap);
+        await idbSet("player_leaderboard", playerLeaderboardMap);
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub").update({
+            user_ranks: userRanksMap,
+            player_leaderboard: playerLeaderboardMap
+          }).catch(() => {});
+        }
+      }
+
+      async function recordMyPlayerActivity(incrementPlay = false) {
+        if (typeof myPlayerTag === "undefined" || !myPlayerTag) return;
+        const existing = playerLeaderboardMap[myPlayerTag] || {
+          tag: myPlayerTag,
+          nick: (typeof myPlayerNickname !== "undefined" && myPlayerNickname) ? myPlayerNickname : "Misafir",
+          plays: 0,
+          xp: 0
+        };
+
+        existing.nick = (typeof myPlayerNickname !== "undefined" && myPlayerNickname) ? myPlayerNickname : existing.nick;
+        if (incrementPlay) existing.plays = (existing.plays || 0) + 1;
+        existing.xp = typeof playerXP !== "undefined" ? playerXP : (existing.xp || 0);
+        existing.lastPlayed = Date.now();
+
+        playerLeaderboardMap[myPlayerTag] = existing;
+        await idbSet("player_leaderboard", playerLeaderboardMap);
+
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub/player_leaderboard/" + myPlayerTag).set(existing).catch(() => {});
+        }
+      }
+
+      function renderTop10PlayersLeaderboard() {
+        const container = document.getElementById("topPlayersList");
+        if (!container) return;
+
+        const top10 = Object.values(playerLeaderboardMap || {})
+          .filter(p => p && p.tag)
+          .sort((a, b) => (b.plays || 0) - (a.plays || 0) || (b.xp || 0) - (a.xp || 0))
+          .slice(0, 10);
+
+        if (top10.length === 0) {
+          container.innerHTML = "<p style='color: var(--text-muted); font-size: 0.86rem;'>Henüz oyun oynayan oyuncu kaydı oluşmadı. İlk oyunu oynayıp 1. sıraya yerleş!</p>";
+          return;
+        }
+
+        container.innerHTML = top10.map((p, index) => {
+          const rankNum = index + 1;
+          const isTop3 = rankNum <= 3;
+          const medalCls = isTop3 ? `rank-medal rank-${rankNum}` : "rank-medal";
+          const badgesHtml = renderBadgesHtml(p.tag, p.nick);
+          return `
+            <div class="player-leader-item ${isTop3 ? "vip-podium" : ""}">
+              <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap;">
+                <span class="${medalCls}">${rankNum}</span>
+                <strong style="font-size: 0.92rem; color: var(--text-main);">${escapeHtml(p.nick || "Oyuncu")}</strong>
+                ${badgesHtml}
+                <span style="font-size: 0.72rem; color: var(--text-muted);">#${escapeHtml(p.tag)}</span>
+              </div>
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary); white-space: nowrap;">${p.plays || 0} oyun</span>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function refreshAllBadgeViews() {
+        // 1. Oyuncunun kendi profil kartındaki rütbelerini göster
+        const myTag = typeof myPlayerTag !== "undefined" ? myPlayerTag : "";
+        const myNick = typeof myPlayerNickname !== "undefined" ? myPlayerNickname : "Misafir";
+        const ownBadgesHtml = renderBadgesHtml(myTag, myNick);
+
+        const profileCard = document.querySelector(".player-profile-card");
+        if (profileCard) {
+          let ownRow = document.getElementById("sidebarOwnRanksRow");
+          if (!ownRow) {
+            ownRow = document.createElement("div");
+            ownRow.id = "sidebarOwnRanksRow";
+            ownRow.className = "profile-own-ranks-row";
+            profileCard.appendChild(ownRow);
+          }
+          ownRow.innerHTML = ownBadgesHtml;
+          ownRow.style.display = ownBadgesHtml ? "flex" : "none";
+        }
+
+        const mobileHeader = document.querySelector(".mobile-player-header");
+        if (mobileHeader) {
+          let mobRow = document.getElementById("mobileOwnRanksRow");
+          if (!mobRow) {
+            mobRow = document.createElement("div");
+            mobRow.id = "mobileOwnRanksRow";
+            mobRow.style.cssText = "display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;";
+            const textWrap = mobileHeader.children[0] && mobileHeader.children[0].children[1];
+            if (textWrap) textWrap.appendChild(mobRow);
+          }
+          mobRow.innerHTML = ownBadgesHtml;
+        }
+
+        const chatComposerNick = document.getElementById("chatComposerNick");
+        const chatComposerBadges = document.getElementById("chatComposerOwnBadges");
+        if (chatComposerNick) chatComposerNick.innerText = "@" + myNick;
+        if (chatComposerBadges) chatComposerBadges.innerHTML = ownBadgesHtml;
+
+        // 2. Liderler tablosu, yorumlar ve sohbeti tazele
+        renderTop10PlayersLeaderboard();
+        if (typeof activeCommentGameId !== "undefined" && activeCommentGameId) {
+          renderCommentsList();
+        }
+        renderGlobalChatMessages();
+      }
+
+      // Mevcut fonksiyonları sarmala (Wrap)
+      const origHandleRouting = window.handleRouting;
+      window.handleRouting = function () {
+        const hash = window.location.hash.replace("#", "") || "games";
+        if (hash === "chat") {
+          document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active-view"));
+          document.querySelectorAll(".nav-item-btn").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".bottom-btn").forEach(b => b.classList.remove("active"));
+
+          const chatView = document.getElementById("view-chat");
+          const sideChat = document.getElementById("side-chat");
+          const botChat = document.getElementById("bot-chat");
+          if (chatView) chatView.classList.add("active-view");
+          if (sideChat) sideChat.classList.add("active");
+          if (botChat) botChat.classList.add("active");
+
+          unreadChatCount = 0;
+          const pill = document.getElementById("sideChatOnlinePill");
+          if (pill) pill.innerText = "Canlı";
+          updateChatLockUI();
+          renderGlobalChatMessages();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+        if (typeof origHandleRouting === "function") origHandleRouting();
+      };
+
+      const origUpdateProfileUI = window.updatePlayerProfileUI;
+      window.updatePlayerProfileUI = function () {
+        if (typeof origUpdateProfileUI === "function") origUpdateProfileUI();
+        refreshAllBadgeViews();
+        recordMyPlayerActivity(false);
+      };
+
+      const origPlayGameDirectly = window.playGameDirectly;
+      window.playGameDirectly = function (gameId) {
+        if (typeof origPlayGameDirectly === "function") origPlayGameDirectly(gameId);
+        recordMyPlayerActivity(true).then(() => {
+          renderTop10PlayersLeaderboard();
+          refreshAllBadgeViews();
+        });
+      };
+
+      const origRenderLeaderboard = window.renderLeaderboard;
+      window.renderLeaderboard = function () {
+        if (typeof origRenderLeaderboard === "function") origRenderLeaderboard();
+        renderTop10PlayersLeaderboard();
+      };
+
+      const origRenderCommentsList = window.renderCommentsList;
+      window.renderCommentsList = function () {
+        if (typeof origRenderCommentsList === "function") origRenderCommentsList();
+        const box = document.getElementById("commentsListBox");
+        if (!box) return;
+
+        // Yorum kartlarındaki yazarların yanına rütbe ve ilk 3 VIP rozetlerini enjekte et
+        const filterQ = document.getElementById("commentSearchFilterInput")
+          ? document.getElementById("commentSearchFilterInput").value.toLowerCase().trim()
+          : "";
+        let list = (typeof commentsList !== "undefined" ? commentsList : []).filter(
+          c => c.gameId === activeCommentGameId
+        );
+        list = list.filter(
+          c => !filterQ || (c.text && c.text.toLowerCase().includes(filterQ)) || (c.author && c.author.toLowerCase().includes(filterQ))
+        );
+        if (typeof commentSortMode !== "undefined") {
+          if (commentSortMode === "popular") list.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+          else if (commentSortMode === "newest") list = [...list].reverse();
+        }
+
+        const bubbles = box.querySelectorAll(".comment-bubble-pro");
+        bubbles.forEach((bubble, idx) => {
+          const item = list[idx];
+          if (!item) return;
+          const leftGroup = bubble.querySelector(".comment-author-left");
+          if (!leftGroup) return;
+          const badgesHtml = renderBadgesHtml(item.tag, item.author);
+          if (badgesHtml && !leftGroup.querySelector(".studio-rank-badge")) {
+            const authorSpan = leftGroup.querySelector(".comment-author");
+            if (authorSpan) {
+              authorSpan.insertAdjacentHTML("afterend", " " + badgesHtml);
+            }
+          }
+        });
+      };
+
+      const origVerifyAdmin = window.verifyAdminPassword;
+      window.verifyAdminPassword = function () {
+        if (typeof origVerifyAdmin === "function") origVerifyAdmin();
+        if (typeof isAdminAuthenticated !== "undefined" && isAdminAuthenticated) {
+          renderAdminAssignedRanks();
+          renderGlobalChatMessages();
+        }
+      };
+
+      // Firebase canlı dinleyicilerini bağla
+      const origInitFirebase = window.initFirebaseConnection;
+      window.initFirebaseConnection = function () {
+        if (typeof origInitFirebase === "function") origInitFirebase();
+
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          // 1. Rütbeleri canlı dinle
+          firebaseDb.child("guzeladam_hub/user_ranks").on("value", (snap) => {
+            userRanksMap = snap.val() || {};
+            idbSet("user_ranks", userRanksMap);
+            renderAdminAssignedRanks();
+            refreshAllBadgeViews();
+          });
+
+          // 2. İlk 10 Oyuncu Lider Tablosunu canlı dinle
+          firebaseDb.child("guzeladam_hub/player_leaderboard").on("value", (snap) => {
+            playerLeaderboardMap = snap.val() || {};
+            idbSet("player_leaderboard", playerLeaderboardMap);
+            refreshAllBadgeViews();
+          });
+
+          // 3. Sohbet banlarını canlı dinle
+          firebaseDb.child("guzeladam_hub/chat_bans").on("value", (snap) => {
+            chatBansMap = snap.val() || {};
+            updateChatLockUI();
+            renderAdminAssignedRanks();
+          });
+
+          // 4. Genel Sohbet mesajlarını canlı dinle (son 100 mesaj)
+          firebaseDb.child("guzeladam_hub/global_chat").limitToLast(100).on("value", (snap) => {
+            const rawObj = snap.val() || {};
+            const arr = Object.entries(rawObj).map(([k, v]) => Object.assign({}, v, { firebaseKey: k }));
+            arr.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+            const prevLen = globalChatMessages.length;
+            globalChatMessages = arr;
+            idbSet("global_chat_cache", globalChatMessages);
+            renderGlobalChatMessages();
+
+            const onChatTab = (window.location.hash.replace("#", "") === "chat");
+            if (!onChatTab && arr.length > prevLen && prevLen > 0) {
+              unreadChatCount += (arr.length - prevLen);
+              const pill = document.getElementById("sideChatOnlinePill");
+              if (pill) pill.innerText = "+" + unreadChatCount;
+            }
+          });
+
+          // 5. Online sayısını sohbet başlığına da yansıt
+          firebase.database().ref("online_users").on("value", (snap) => {
+            const cnt = snap.numChildren() || 1;
+            const chatOnlineEl = document.getElementById("chatHeaderOnlineCount");
+            if (chatOnlineEl) chatOnlineEl.innerText = cnt + " Çevrimiçi";
+          });
+        }
+      };
+
+      // initApp sarmalayıcısı
+      const origInitApp = window.initApp;
+      window.initApp = async function () {
+        injectProExtensionStyles();
+        injectStudioExtensionsIntoDOM();
+
+        userRanksMap = await idbGet("user_ranks", {});
+        playerLeaderboardMap = await idbGet("player_leaderboard", {});
+        globalChatMessages = await idbGet("global_chat_cache", []);
+        localChatBanUntil = await idbGet("chat_ban_until", 0);
+
+        if (typeof origInitApp === "function") {
+          await origInitApp();
+        }
+
+        await recordMyPlayerActivity(false);
+        refreshAllBadgeViews();
+        updateChatLockUI();
+        handleRouting();
+
+        // Canlı sayaç döngüleri (10 dk küfür banı & 10 mesaj spam yenileme)
+        clearInterval(chatBanTicker);
+        chatBanTicker = setInterval(updateChatLockUI, 1000);
+      };
+    })();
 
     initApp();
   </script>
