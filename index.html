@@ -6228,6 +6228,867 @@
         updateSecretDrawerStatusUI();
       };
     })();
+        // =========================================================================
+    // GUZELADAM STUDIO - OYUNCU ÖNERİLERİ & ADMIN YANIT SİSTEMİ
+    // =========================================================================
+    (function () {
+      "use strict";
+
+      let suggestionsList = [];
+      let userUpvotedSuggestionIds = [];
+      let playerSuggestionFilter = "mine";   // "mine" | "community"
+      let adminSuggestionFilter = "all";     // "all" | "pending" | "replied"
+      let lastSuggestionSentAt = 0;
+      let lastSeenRepliesCount = 0;
+
+      // 1. Öneriler Bölümü & Admin Paneli Stilleri
+      function injectSuggestionsStyles() {
+        if (document.getElementById("guzeladam-suggestions-styles")) return;
+        const styleEl = document.createElement("style");
+        styleEl.id = "guzeladam-suggestions-styles";
+        styleEl.textContent = `
+          .suggestions-editorial-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            align-items: start;
+          }
+          .suggestion-composer-card {
+            background: linear-gradient(155deg, var(--bg-surface), var(--bg-card) 68%, rgba(91, 33, 182, 0.22));
+            border: 1px solid var(--border-strong);
+            border-radius: 22px;
+            padding: 24px;
+            position: sticky;
+            top: 24px;
+            box-shadow: 0 16px 38px rgba(8, 17, 36, 0.55);
+          }
+          .suggestion-feed-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          }
+          .suggestion-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px 16px;
+          }
+          .suggestion-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            animation: cardStaggerIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            transition: border-color 0.25s ease, transform 0.25s ease;
+          }
+          .suggestion-card:hover {
+            border-color: var(--border-strong);
+            transform: translateY(-2px);
+          }
+          .suggestion-card.has-creator-reply {
+            border-color: rgba(125, 211, 252, 0.38);
+          }
+          .suggestion-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+          .suggestion-cat-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: rgba(125, 211, 252, 0.12);
+            border: 1px solid var(--border-strong);
+            color: var(--primary);
+          }
+          .suggestion-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: 0.72rem;
+            font-weight: 700;
+          }
+          .status-pending {
+            background: rgba(148, 163, 184, 0.14);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            color: var(--text-muted);
+          }
+          .status-planned {
+            background: rgba(124, 58, 237, 0.22);
+            border: 1px solid #A78BFA;
+            color: #EDE9FE;
+          }
+          .status-added {
+            background: rgba(74, 222, 128, 0.14);
+            border: 1px solid rgba(74, 222, 128, 0.45);
+            color: var(--neon-micro);
+          }
+          .status-replied {
+            background: rgba(125, 211, 252, 0.16);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+          }
+          .status-rejected {
+            background: rgba(244, 63, 94, 0.14);
+            border: 1px solid rgba(244, 63, 94, 0.45);
+            color: #FDA4AF;
+          }
+          .suggestion-title {
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.2px;
+          }
+          .suggestion-desc {
+            font-size: 0.91rem;
+            color: var(--text-muted);
+            line-height: 1.58;
+            white-space: pre-wrap;
+            word-break: break-word;
+          }
+          .creator-reply-box {
+            background: linear-gradient(145deg, rgba(17, 34, 68, 0.92), rgba(91, 33, 182, 0.26));
+            border-left: 3px solid var(--primary);
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 13px 16px;
+            margin-top: 4px;
+          }
+          .creator-reply-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 5px;
+            font-size: 0.78rem;
+          }
+          .suggestion-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+          }
+          .upvote-sug-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 5px 12px;
+            border-radius: 9px;
+            font-size: 0.79rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+          }
+          .upvote-sug-btn:hover, .upvote-sug-btn.voted {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(125, 211, 252, 0.1);
+          }
+
+          /* ADMİN ÖNERİ YÖNETİM KARTLARI */
+          .admin-sug-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+          }
+          .admin-sug-card.unanswered {
+            border-color: var(--border-strong);
+          }
+          .admin-reply-controls {
+            display: grid;
+            grid-template-columns: 165px 1fr auto;
+            gap: 8px;
+            margin-top: 12px;
+          }
+
+          @media (max-width: 1020px) {
+            .suggestions-editorial-grid {
+              grid-template-columns: 1fr;
+            }
+            .suggestion-composer-card {
+              position: static;
+            }
+          }
+          @media (max-width: 720px) {
+            .admin-reply-controls {
+              grid-template-columns: 1fr;
+            }
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+
+      // 2. DOM Enjeksiyonu: Sol Menü, Mobil Alt Bar, Öneriler Sayfası ve Admin Sekmesi
+      function injectSuggestionsUI() {
+        // A. Sol Menüye "Öneriler" Butonu Ekle
+        const navList = document.querySelector(".sidebar .nav-list");
+        if (navList && !document.getElementById("side-suggestions")) {
+          const sugLi = document.createElement("li");
+          sugLi.innerHTML = `
+            <button class="nav-item-btn" id="side-suggestions" onclick="navigateTo('suggestions')">
+              <svg viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg>
+              Öneriler
+              <span class="nav-badge-count" id="sideSugReplyBadge" style="display: none; color: var(--neon-micro); border-color: rgba(74, 222, 128, 0.45);">Yanıt Var</span>
+            </button>
+          `;
+          // Ayarlar sekmesinin hemen üstüne yerleştir
+          const settingsLi = document.getElementById("side-settings")
+            ? document.getElementById("side-settings").closest("li")
+            : null;
+          if (settingsLi) {
+            navList.insertBefore(sugLi, settingsLi);
+          } else {
+            navList.appendChild(sugLi);
+          }
+        }
+
+        // B. Mobil Alt Bara "Öneriler" Butonu Ekle
+        const bottomBar = document.querySelector(".bottom-bar");
+        if (bottomBar && !document.getElementById("bot-suggestions")) {
+          const botSugBtn = document.createElement("button");
+          botSugBtn.className = "bottom-btn";
+          botSugBtn.id = "bot-suggestions";
+          botSugBtn.setAttribute("onclick", "navigateTo('suggestions')");
+          botSugBtn.innerHTML = `
+            <svg viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg>
+            Öneriler
+          `;
+          const botSettings = document.getElementById("bot-settings");
+          if (botSettings) {
+            bottomBar.insertBefore(botSugBtn, botSettings);
+          } else {
+            bottomBar.appendChild(botSugBtn);
+          }
+        }
+
+        // C. Ana İçerik Alanına "Öneriler" Sayfasını Ekle
+        const contentArea = document.querySelector(".content-area");
+        if (contentArea && !document.getElementById("view-suggestions")) {
+          const sugSection = document.createElement("section");
+          sugSection.id = "view-suggestions";
+          sugSection.className = "page-section";
+          sugSection.innerHTML = `
+            <div class="section-header">
+              <div class="section-eyebrow"><span class="micro-pulse"></span> Oyuncu Geri Bildirim Merkezi</div>
+              <h1>Öneriler & Fikirler</h1>
+              <p>Yeni oyun fikirlerini, özellik isteklerini veya gördüğün hataları doğrudan yapımcılara (guzeladam & tipistilki) ilet. Yapımcıların cevaplarını buradan takip edebilirsin.</p>
+            </div>
+
+            <div class="suggestions-editorial-grid">
+              <!-- SOL: ÖNERİ GÖNDERME FORMU -->
+              <div class="suggestion-composer-card">
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--primary); margin-bottom: 6px;">Yapımcılara Öneri Gönder</h3>
+                <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 18px; line-height: 1.5;">
+                  Gönderen: <strong id="sugSenderNickDisplay" style="color: var(--text-main);">Misafir</strong> (<span id="sugSenderTagDisplay">#-----</span>)
+                </p>
+
+                <div class="form-group">
+                  <label>Öneri Kategorisi</label>
+                  <select id="sugCategoryInput" class="form-ctrl">
+                    <option value="Yeni Oyun Fikri">Yeni Oyun Fikri</option>
+                    <option value="Özellik İsteği">Özellik İsteği</option>
+                    <option value="Tasarım / Arayüz">Tasarım / Arayüz</option>
+                    <option value="Hata Bildirimi">Hata Bildirimi</option>
+                    <option value="Diğer">Diğer</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Öneri Başlığı</label>
+                  <input type="text" id="sugTitleInput" class="form-ctrl" maxlength="70" placeholder="Örn: Uzay temalı 2 kişilik oyun gelsin">
+                </div>
+
+                <div class="form-group">
+                  <label>Detaylı Açıklama</label>
+                  <textarea id="sugMessageInput" class="form-ctrl" maxlength="500" style="min-height: 125px; font-family: inherit;" placeholder="Fikrini veya önerini detaylıca anlat..."></textarea>
+                  <div style="text-align: right; font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;">
+                    <span id="sugCharCounter">0 / 500</span>
+                  </div>
+                </div>
+
+                <button type="button" id="submitSuggestionBtn" class="btn btn-play-run" style="width: 100%; padding: 13px; font-size: 0.94rem;">
+                  Öneriyi Yapımcılara Gönder
+                </button>
+              </div>
+
+              <!-- SAĞ: ÖNERİLER VE YAPIMCI YANITLARI AKIŞI -->
+              <div class="suggestion-feed-column">
+                <div class="suggestion-toolbar">
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="cat-pill active" id="sugTabMineBtn">Benim Önerilerim (<span id="mySugCountSpan">0</span>)</button>
+                    <button type="button" class="cat-pill" id="sugTabCommunityBtn">Topluluk Önerileri (<span id="allSugCountSpan">0</span>)</button>
+                  </div>
+                  <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Canlı Firebase Senkronizasyonu</span>
+                </div>
+
+                <div id="playerSuggestionsFeedList" style="display: flex; flex-direction: column; gap: 14px;"></div>
+              </div>
+            </div>
+          `;
+          contentArea.appendChild(sugSection);
+
+          // Form olayları
+          const msgArea = document.getElementById("sugMessageInput");
+          msgArea.addEventListener("input", () => {
+            document.getElementById("sugCharCounter").innerText = `${msgArea.value.length} / 500`;
+          });
+
+          document.getElementById("submitSuggestionBtn").addEventListener("click", submitNewPlayerSuggestion);
+
+          document.getElementById("sugTabMineBtn").addEventListener("click", function () {
+            playerSuggestionFilter = "mine";
+            document.getElementById("sugTabMineBtn").classList.add("active");
+            document.getElementById("sugTabCommunityBtn").classList.remove("active");
+            renderPlayerSuggestionsFeed();
+          });
+
+          document.getElementById("sugTabCommunityBtn").addEventListener("click", function () {
+            playerSuggestionFilter = "community";
+            document.getElementById("sugTabCommunityBtn").classList.add("active");
+            document.getElementById("sugTabMineBtn").classList.remove("active");
+            renderPlayerSuggestionsFeed();
+          });
+        }
+
+        // D. Admin Paneline "Öneriler" Sekmesini Ekle
+        const adminTabsRow = document.querySelector("#adminControlDashboard .admin-tabs-row");
+        const adminDialogBox = document.querySelector("#adminControlDashboard .admin-dialog-box");
+        if (adminTabsRow && adminDialogBox && !document.getElementById("tab-suggestions")) {
+          const sugAdminTabBtn = document.createElement("button");
+          sugAdminTabBtn.id = "adminSuggestionsTabBtn";
+          sugAdminTabBtn.className = "admin-tab-btn";
+          sugAdminTabBtn.textContent = "Öneriler (0)";
+          sugAdminTabBtn.setAttribute("onclick", "switchAdminTab('tab-suggestions', this)");
+          adminTabsRow.appendChild(sugAdminTabBtn);
+
+          const sugAdminTabContent = document.createElement("div");
+          sugAdminTabContent.id = "tab-suggestions";
+          sugAdminTabContent.className = "admin-tab-content";
+          sugAdminTabContent.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+              <div>
+                <h4 style="color: var(--primary); margin-bottom: 4px;">Oyuncu Önerileri & Yapımcı Yanıt Masası</h4>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">Oyuncuların gönderdiği önerileri buradan okuyabilir, durumunu değiştirebilir ve doğrudan yanıt yazabilirsin.</p>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="cat-pill active" id="adminSugFilterAll">Tümü</button>
+                <button type="button" class="cat-pill" id="adminSugFilterPending">Yanıt Bekleyenler</button>
+                <button type="button" class="cat-pill" id="adminSugFilterReplied">Yanıtlananlar</button>
+              </div>
+            </div>
+            <div id="adminSuggestionsManageFeed"></div>
+          `;
+          adminDialogBox.appendChild(sugAdminTabContent);
+
+          document.getElementById("adminSugFilterAll").addEventListener("click", function () {
+            setAdminSugFilter("all", this);
+          });
+          document.getElementById("adminSugFilterPending").addEventListener("click", function () {
+            setAdminSugFilter("pending", this);
+          });
+          document.getElementById("adminSugFilterReplied").addEventListener("click", function () {
+            setAdminSugFilter("replied", this);
+          });
+        }
+      }
+
+      function setAdminSugFilter(mode, btnEl) {
+        adminSuggestionFilter = mode;
+        document.querySelectorAll("#tab-suggestions .cat-pill").forEach(b => b.classList.remove("active"));
+        if (btnEl) btnEl.classList.add("active");
+        renderAdminSuggestionsFeed();
+      }
+
+      // 3. Yardımcı Fonksiyonlar
+      function getStatusMeta(status) {
+        switch (status) {
+          case "planned":
+            return { label: "Planlandı", cls: "status-planned" };
+          case "added":
+            return { label: "Oyuna Eklendi", cls: "status-added" };
+          case "replied":
+            return { label: "Yapımcı Yanıtladı", cls: "status-replied" };
+          case "rejected":
+            return { label: "Uygun Görülmedi", cls: "status-rejected" };
+          default:
+            return { label: "İnceleniyor", cls: "status-pending" };
+        }
+      }
+
+      function updateSenderIdentityHeader() {
+        const nickEl = document.getElementById("sugSenderNickDisplay");
+        const tagEl = document.getElementById("sugSenderTagDisplay");
+        if (nickEl) {
+          nickEl.innerText = (typeof myPlayerNickname !== "undefined" && myPlayerNickname) ? myPlayerNickname : "Misafir";
+        }
+        if (tagEl) {
+          tagEl.innerText = "#" + ((typeof myPlayerTag !== "undefined" && myPlayerTag) ? myPlayerTag : "-----");
+        }
+      }
+
+      function updateUnreadReplyIndicator() {
+        const myTag = (typeof myPlayerTag !== "undefined" && myPlayerTag) ? myPlayerTag : "";
+        const myRepliedCount = suggestionsList.filter(s => s.authorTag === myTag && s.adminReply).length;
+        const badge = document.getElementById("sideSugReplyBadge");
+        if (!badge) return;
+
+        const onSugPage = (window.location.hash.replace("#", "") === "suggestions");
+        if (onSugPage) {
+          lastSeenRepliesCount = myRepliedCount;
+          idbSet("seen_sug_replies_count", lastSeenRepliesCount);
+          badge.style.display = "none";
+        } else if (myRepliedCount > lastSeenRepliesCount) {
+          badge.style.display = "inline-block";
+        } else {
+          badge.style.display = "none";
+        }
+      }
+
+      // 4. Oyuncu Öneri Gönderme & Destekleme
+      async function submitNewPlayerSuggestion() {
+        const cat = document.getElementById("sugCategoryInput").value;
+        const title = document.getElementById("sugTitleInput").value.trim();
+        const message = document.getElementById("sugMessageInput").value.trim();
+
+        if (!title || title.length < 3) {
+          if (typeof showStudioToast === "function") showStudioToast("Lütfen en az 3 harfli bir öneri başlığı yaz.");
+          return;
+        }
+        if (!message || message.length < 5) {
+          if (typeof showStudioToast === "function") showStudioToast("Lütfen önerini biraz daha detaylı açıkla.");
+          return;
+        }
+
+        const now = Date.now();
+        if (now - lastSuggestionSentAt < 15000 && !isAdminAuthenticated) {
+          const wait = Math.ceil((15000 - (now - lastSuggestionSentAt)) / 1000);
+          if (typeof showStudioToast === "function") showStudioToast(`Yeni öneri göndermek için ${wait} saniye bekle.`);
+          return;
+        }
+
+        const authorNick = (typeof myPlayerNickname !== "undefined" && myPlayerNickname) ? myPlayerNickname : "Misafir";
+        const authorTag = (typeof myPlayerTag !== "undefined" && myPlayerTag) ? myPlayerTag : "00000";
+
+        const sugItem = {
+          id: "sug_" + now + "_" + Math.random().toString(36).slice(2, 6),
+          category: cat,
+          title: title.slice(0, 75),
+          message: message.slice(0, 520),
+          authorNick: authorNick,
+          authorTag: authorTag,
+          status: "pending",
+          upvotes: 1,
+          adminReply: "",
+          adminReplyBy: "",
+          adminReplyTime: 0,
+          createdAt: now
+        };
+
+        lastSuggestionSentAt = now;
+        userUpvotedSuggestionIds.push(sugItem.id);
+        await idbSet("upvoted_suggestions", userUpvotedSuggestionIds);
+
+        suggestionsList.unshift(sugItem);
+        await idbSet("studio_suggestions_cache", suggestionsList);
+
+        document.getElementById("sugTitleInput").value = "";
+        document.getElementById("sugMessageInput").value = "";
+        document.getElementById("sugCharCounter").innerText = "0 / 500";
+
+        // Gönderdikten sonra otomatik "Benim Önerilerim" sekmesine geçir
+        playerSuggestionFilter = "mine";
+        document.getElementById("sugTabMineBtn").classList.add("active");
+        document.getElementById("sugTabCommunityBtn").classList.remove("active");
+
+        renderPlayerSuggestionsFeed();
+        renderAdminSuggestionsFeed();
+
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub/suggestions/" + sugItem.id).set(sugItem).catch(() => {});
+        }
+
+        if (typeof playRetroSound === "function") playRetroSound("star");
+        if (typeof grantPlayerXP === "function") grantPlayerXP(15);
+        if (typeof showStudioToast === "function") {
+          showStudioToast("Önerin yapımcılara iletildi! (+15 XP)");
+        }
+      }
+
+      async function toggleUpvoteSuggestion(sugId) {
+        const target = suggestionsList.find(s => s.id === sugId);
+        if (!target) return;
+
+        if (!target.upvotes) target.upvotes = 0;
+
+        if (userUpvotedSuggestionIds.includes(sugId)) {
+          userUpvotedSuggestionIds = userUpvotedSuggestionIds.filter(id => id !== sugId);
+          target.upvotes = Math.max(0, target.upvotes - 1);
+        } else {
+          userUpvotedSuggestionIds.push(sugId);
+          target.upvotes += 1;
+        }
+
+        await idbSet("upvoted_suggestions", userUpvotedSuggestionIds);
+        await idbSet("studio_suggestions_cache", suggestionsList);
+        renderPlayerSuggestionsFeed();
+
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub/suggestions/" + sugId + "/upvotes").set(target.upvotes).catch(() => {});
+        }
+        if (typeof playRetroSound === "function") playRetroSound("click");
+      }
+
+      async function deleteOwnSuggestion(sugId) {
+        if (!confirm("Bu önerini silmek istediğine emin misin?")) return;
+        suggestionsList = suggestionsList.filter(s => s.id !== sugId);
+        await idbSet("studio_suggestions_cache", suggestionsList);
+        renderPlayerSuggestionsFeed();
+        renderAdminSuggestionsFeed();
+
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub/suggestions/" + sugId).remove().catch(() => {});
+        }
+        if (typeof showStudioToast === "function") showStudioToast("Öneri silindi.");
+      }
+
+      // 5. Oyuncu Öneri Akışını Çiz
+      function renderPlayerSuggestionsFeed() {
+        const feedEl = document.getElementById("playerSuggestionsFeedList");
+        if (!feedEl) return;
+
+        const myTag = (typeof myPlayerTag !== "undefined" && myPlayerTag) ? myPlayerTag : "";
+        const mineList = suggestionsList.filter(s => s.authorTag === myTag);
+
+        const myCountEl = document.getElementById("mySugCountSpan");
+        const allCountEl = document.getElementById("allSugCountSpan");
+        if (myCountEl) myCountEl.innerText = mineList.length;
+        if (allCountEl) allCountEl.innerText = suggestionsList.length;
+
+        const activeList = playerSuggestionFilter === "mine" ? mineList : suggestionsList;
+
+        if (activeList.length === 0) {
+          feedEl.innerHTML = `
+            <div class="empty-state-box" style="margin: 0; max-width: 100%; padding: 50px 20px;">
+              <h3>${playerSuggestionFilter === "mine" ? "Henüz Öneri Göndermedin" : "Henüz Topluluk Önerisi Yok"}</h3>
+              <p>${playerSuggestionFilter === "mine"
+                ? "Sol taraftaki formdan ilk oyun fikrini veya isteğini yapımcılara gönderebilirsin."
+                : "İlk öneriyi göndererek topluluğa öncülük et!"}</p>
+            </div>
+          `;
+          return;
+        }
+
+        feedEl.innerHTML = activeList.map(sug => {
+          const st = getStatusMeta(sug.status);
+          const isMine = sug.authorTag === myTag;
+          const isVoted = userUpvotedSuggestionIds.includes(sug.id);
+          const dateStr = sug.createdAt
+            ? new Date(sug.createdAt).toLocaleString([], { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+            : "";
+
+          const replyBlockHtml = sug.adminReply
+            ? `
+              <div class="creator-reply-box">
+                <div class="creator-reply-header">
+                  <div style="display: flex; align-items: center; gap: 7px;">
+                    <span class="studio-rank-badge rank-style-yapimci">Yapımcı Yanıtı</span>
+                    <strong style="color: var(--primary);">${escapeHtml(sug.adminReplyBy || "guzeladam")}</strong>
+                  </div>
+                  <span style="color: var(--text-muted); font-size: 0.74rem;">
+                    ${sug.adminReplyTime ? new Date(sug.adminReplyTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
+                  </span>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-main); line-height: 1.55;">
+                  ${escapeHtml(sug.adminReply)}
+                </div>
+              </div>
+            `
+            : "";
+
+          return `
+            <div class="suggestion-card ${sug.adminReply ? "has-creator-reply" : ""}">
+              <div class="suggestion-card-top">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <span class="suggestion-cat-badge">${escapeHtml(sug.category || "Öneri")}</span>
+                  <span class="suggestion-status-pill ${st.cls}">${st.label}</span>
+                </div>
+                <span style="font-size: 0.76rem; color: var(--text-muted);">${dateStr}</span>
+              </div>
+
+              <div class="suggestion-title">${escapeHtml(sug.title)}</div>
+              <div class="suggestion-desc">${escapeHtml(sug.message)}</div>
+
+              ${replyBlockHtml}
+
+              <div class="suggestion-card-footer">
+                <div>
+                  Gönderen: <strong style="color: var(--primary);">${escapeHtml(sug.authorNick || "Oyuncu")}</strong>
+                  <span>#${escapeHtml(sug.authorTag || "-----")}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="upvote-sug-btn ${isVoted ? "voted" : ""}" data-upvote-sug="${escapeHtml(sug.id)}">
+                    Destekle (${sug.upvotes || 0})
+                  </button>
+                  ${isMine ? `<button type="button" class="comment-mini-action" style="border-color: var(--danger); color: var(--danger);" data-del-own-sug="${escapeHtml(sug.id)}">Sil</button>` : ""}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        feedEl.querySelectorAll("[data-upvote-sug]").forEach(btn => {
+          btn.addEventListener("click", () => toggleUpvoteSuggestion(btn.getAttribute("data-upvote-sug")));
+        });
+        feedEl.querySelectorAll("[data-del-own-sug]").forEach(btn => {
+          btn.addEventListener("click", () => deleteOwnSuggestion(btn.getAttribute("data-del-own-sug")));
+        });
+      }
+
+      // 6. Admin Paneli: Önerileri Görüntüleme ve Cevap Yazma
+      function renderAdminSuggestionsFeed() {
+        const pendingCount = suggestionsList.filter(s => !s.adminReply).length;
+        const tabBtn = document.getElementById("adminSuggestionsTabBtn");
+        if (tabBtn) {
+          tabBtn.textContent = `Öneriler (${pendingCount})`;
+        }
+
+        const container = document.getElementById("adminSuggestionsManageFeed");
+        if (!container) return;
+
+        let filtered = [...suggestionsList];
+        if (adminSuggestionFilter === "pending") {
+          filtered = filtered.filter(s => !s.adminReply);
+        } else if (adminSuggestionFilter === "replied") {
+          filtered = filtered.filter(s => Boolean(s.adminReply));
+        }
+
+        if (filtered.length === 0) {
+          container.innerHTML = "<p style='color: var(--text-muted); font-size: 0.86rem; padding: 16px 0;'>Bu filtrede gösterilecek oyuncu önerisi bulunmuyor.</p>";
+          return;
+        }
+
+        container.innerHTML = filtered.map(sug => {
+          const st = getStatusMeta(sug.status);
+          const timeFormatted = sug.createdAt ? new Date(sug.createdAt).toLocaleString() : "";
+          const currentStatus = sug.status || "pending";
+
+          return `
+            <div class="admin-sug-card ${!sug.adminReply ? "unanswered" : ""}">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <strong style="color: var(--primary); font-size: 0.92rem;">${escapeHtml(sug.authorNick || "Oyuncu")}</strong>
+                  <span style="font-size: 0.78rem; color: var(--text-muted);">#${escapeHtml(sug.authorTag || "-----")}</span>
+                  <span class="suggestion-cat-badge">${escapeHtml(sug.category || "Öneri")}</span>
+                  <span class="suggestion-status-pill ${st.cls}">${st.label}</span>
+                  <span class="code-meta-pill">${sug.upvotes || 0} Destek</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">${timeFormatted}</span>
+                  <button type="button" class="btn btn-secondary" style="padding: 4px 9px; font-size: 0.74rem; border-color: var(--danger); color: var(--danger);" data-admin-del-sug="${escapeHtml(sug.id)}">Sil</button>
+                </div>
+              </div>
+
+              <div style="font-weight: 800; font-size: 1rem; margin-bottom: 5px; color: var(--text-main);">${escapeHtml(sug.title)}</div>
+              <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; white-space: pre-wrap;">${escapeHtml(sug.message)}</div>
+
+              ${sug.adminReply ? `
+                <div style="margin-top: 10px; padding: 10px 13px; border-radius: 10px; background: rgba(125, 211, 252, 0.08); border: 1px solid var(--border-strong); font-size: 0.85rem;">
+                  <strong style="color: var(--primary);">Mevcut Yanıt (${escapeHtml(sug.adminReplyBy || "guzeladam")}):</strong>
+                  <span style="color: var(--text-main); margin-left: 6px;">${escapeHtml(sug.adminReply)}</span>
+                </div>
+              ` : ""}
+
+              <div class="admin-reply-controls">
+                <select class="form-ctrl" style="padding: 9px 11px; font-size: 0.84rem;" id="admin-sug-status-${escapeHtml(sug.id)}">
+                  <option value="replied" ${currentStatus === "replied" || currentStatus === "pending" ? "selected" : ""}>Yanıtlandı</option>
+                  <option value="planned" ${currentStatus === "planned" ? "selected" : ""}>Planlandı</option>
+                  <option value="added" ${currentStatus === "added" ? "selected" : ""}>Oyuna Eklendi</option>
+                  <option value="rejected" ${currentStatus === "rejected" ? "selected" : ""}>Uygun Görülmedi</option>
+                </select>
+                <input type="text" class="form-ctrl" style="padding: 9px 12px; font-size: 0.86rem;" id="admin-sug-reply-input-${escapeHtml(sug.id)}" value="${escapeHtml(sug.adminReply || "")}" placeholder="Oyuncuya görünecek yapımcı cevabını yaz...">
+                <button type="button" class="btn btn-play-run" style="padding: 9px 16px; font-size: 0.84rem; white-space: nowrap;" data-admin-send-reply="${escapeHtml(sug.id)}">Yanıtı Gönder</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        container.querySelectorAll("[data-admin-send-reply]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-admin-send-reply");
+            adminReplyToSuggestion(id);
+          });
+        });
+
+        container.querySelectorAll("[data-admin-del-sug]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-admin-del-sug");
+            adminDeleteSuggestion(id);
+          });
+        });
+      }
+
+      async function adminReplyToSuggestion(sugId) {
+        const target = suggestionsList.find(s => s.id === sugId);
+        if (!target) return;
+
+        const replyInput = document.getElementById("admin-sug-reply-input-" + sugId);
+        const statusSelect = document.getElementById("admin-sug-status-" + sugId);
+        const replyText = replyInput ? replyInput.value.trim() : "";
+        const chosenStatus = statusSelect ? statusSelect.value : "replied";
+
+        if (!replyText) {
+          if (typeof showStudioToast === "function") showStudioToast("Lütfen oyuncuya gönderilecek cevabı yaz.");
+          return;
+        }
+
+        const responderName = (typeof myPlayerNickname !== "undefined" && myPlayerNickname) ? myPlayerNickname : "guzeladam";
+
+        target.adminReply = replyText.slice(0, 400);
+        target.adminReplyBy = responderName;
+        target.adminReplyTime = Date.now();
+        target.status = chosenStatus;
+
+        await idbSet("studio_suggestions_cache", suggestionsList);
+        renderAdminSuggestionsFeed();
+        renderPlayerSuggestionsFeed();
+
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub/suggestions/" + sugId).set(target).catch(() => {});
+        }
+
+        if (typeof playRetroSound === "function") playRetroSound("star");
+        if (typeof showStudioToast === "function") {
+          showStudioToast(`#${target.authorTag} oyuncusunun önerisine cevap gönderildi.`);
+        }
+      }
+
+      async function adminDeleteSuggestion(sugId) {
+        if (!confirm("Bu öneriyi kalıcı olarak silmek istediğine emin misin?")) return;
+        suggestionsList = suggestionsList.filter(s => s.id !== sugId);
+        await idbSet("studio_suggestions_cache", suggestionsList);
+        renderAdminSuggestionsFeed();
+        renderPlayerSuggestionsFeed();
+
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub/suggestions/" + sugId).remove().catch(() => {});
+        }
+        if (typeof showStudioToast === "function") showStudioToast("Öneri silindi.");
+      }
+
+      // 7. Mevcut Yönlendirme, Firebase ve Başlatıcı Fonksiyonlara Güvenli Bağlantı
+      const prevHandleRoutingForSug = window.handleRouting;
+      window.handleRouting = function () {
+        const hash = window.location.hash.replace("#", "") || "games";
+        if (hash === "suggestions") {
+          document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active-view"));
+          document.querySelectorAll(".nav-item-btn").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".bottom-btn").forEach(b => b.classList.remove("active"));
+
+          const sugView = document.getElementById("view-suggestions");
+          const sideSug = document.getElementById("side-suggestions");
+          const botSug = document.getElementById("bot-suggestions");
+          if (sugView) sugView.classList.add("active-view");
+          if (sideSug) sideSug.classList.add("active");
+          if (botSug) botSug.classList.add("active");
+
+          updateSenderIdentityHeader();
+          renderPlayerSuggestionsFeed();
+          updateUnreadReplyIndicator();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+        if (typeof prevHandleRoutingForSug === "function") {
+          prevHandleRoutingForSug();
+        }
+      };
+
+      const prevUpdateProfileForSug = window.updatePlayerProfileUI;
+      window.updatePlayerProfileUI = function () {
+        if (typeof prevUpdateProfileForSug === "function") {
+          prevUpdateProfileForSug();
+        }
+        updateSenderIdentityHeader();
+      };
+
+      const prevVerifyAdminForSug = window.verifyAdminPassword;
+      window.verifyAdminPassword = function () {
+        if (typeof prevVerifyAdminForSug === "function") {
+          prevVerifyAdminForSug();
+        }
+        if (typeof isAdminAuthenticated !== "undefined" && isAdminAuthenticated) {
+          renderAdminSuggestionsFeed();
+        }
+      };
+
+      const prevInitFirebaseForSug = window.initFirebaseConnection;
+      window.initFirebaseConnection = function () {
+        if (typeof prevInitFirebaseForSug === "function") {
+          prevInitFirebaseForSug();
+        }
+
+        if (typeof firebaseDb !== "undefined" && firebaseDb) {
+          firebaseDb.child("guzeladam_hub/suggestions").on("value", (snap) => {
+            const raw = snap.val() || {};
+            const arr = Object.values(raw).filter(item => item && item.id);
+            arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            suggestionsList = arr;
+            idbSet("studio_suggestions_cache", suggestionsList);
+
+            renderPlayerSuggestionsFeed();
+            renderAdminSuggestionsFeed();
+            updateUnreadReplyIndicator();
+          });
+        }
+      };
+
+      const prevInitAppForSug = window.initApp;
+      window.initApp = async function () {
+        injectSuggestionsStyles();
+        injectSuggestionsUI();
+
+        suggestionsList = await idbGet("studio_suggestions_cache", []);
+        userUpvotedSuggestionIds = await idbGet("upvoted_suggestions", []);
+        lastSeenRepliesCount = await idbGet("seen_sug_replies_count", 0);
+
+        if (typeof prevInitAppForSug === "function") {
+          await prevInitAppForSug();
+        }
+
+        updateSenderIdentityHeader();
+        renderPlayerSuggestionsFeed();
+        renderAdminSuggestionsFeed();
+        updateUnreadReplyIndicator();
+        handleRouting();
+      };
+    })();
+
 
     initApp();
   </script>
